@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 function PwListItem(props) {
     const name = props.name;
+    const index = props.index;
 
     function onPwListItemClick() {
-        props.handleItemClick(name);
+        props.handleItemClick(name, index);
     }
 
     return (
@@ -14,12 +15,14 @@ function PwListItem(props) {
 
 function Aside(props) {
 
-    function handleItemClick(name) {
-        props.handlePwItemClick(name);
+    function handleItemClick(name, index) {
+        props.handlePwItemClick(name, index);
     }
 
-    const pwListItems = props.data.map((pwListItem) =>
-        <PwListItem key={pwListItem.name}
+    const pwListItems = props.data.map((pwListItem, index) =>
+        <PwListItem
+            key={pwListItem.name}
+            index={index}
             name={pwListItem.name}
             handleItemClick={handleItemClick}
         />

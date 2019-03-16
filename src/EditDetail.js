@@ -103,10 +103,18 @@ function EditDetailList(props) {
     )
 }
 
-function DetailHeader(props) {
+function EditDetailHeader(props) {
+    const [name, setName] = useState(props.name);
+
+    function onNameChange(event) {
+        let value = event.target.value;
+        setName(value);
+        props.onNameChange(value);
+    }
+
     return (
         <div>
-            <p class="my-auto py-2 text-secondary font-italic">{props.name}</p>
+            <input type="text" aria-label="Label" value={name} onChange={onNameChange} class="form-control" />
         </div>
     )
 }
@@ -137,6 +145,10 @@ function EditDetail(props) {
         props.onAddClick();
     }
 
+    function onInputNameChange(value) {
+        detailData.name = value;
+    }
+
     function onItemInputLabelChange(value, index) {
         // props.onItemInputLabelChange(value, index);
         detailData.detailList[index].label = value;
@@ -161,7 +173,10 @@ function EditDetail(props) {
 
     if (detailData) {
         detail = <div>
-            <DetailHeader name={detailData.name} />
+            <EditDetailHeader
+                name={detailData.name}
+                onNameChange={onInputNameChange}
+            />
             <EditDetailList
                 data={detailData}
                 onAddClick={onAddClick}

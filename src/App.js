@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Header from './Header';
 import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
-import { saveEditDetail } from './BackgroundTask';
+import * as BackgroundTask from './BackgroundTask';
 require('bootstrap');
 
-
 function Content() {
-  var allData = [
+  var recieveData = [
     {
       "name": "MyAccount-1",
       "detailList": [{
@@ -38,7 +37,7 @@ function Content() {
     }
   ]
 
-  allData = allData.map(data => {
+  const [allData, setAllData] = useState(recieveData.map(data => {
     return {
       "name": data.name,
       "detailList": data.detailList.map(detail => {
@@ -49,32 +48,36 @@ function Content() {
         }
       })
     }
-  });
+  }));
 
-  // TODO: 目前是给 源数组 添加 随机数id 实现，但是经过 log 发现这个 添加 过程每次都会被调用
+  // - SOLVED: 目前是给 源数组 添加 随机数id 实现，但是经过 log 发现这个 添加 过程每次都会被调用
   //（虽然实际上不会影响到最终的 DOM 树，但还是很在意这一点，能不能只加载一次呢？）
+  // 参考：https://stackoverflow.com/questions/55190853/strange-behavior-of-react-setstat-with-let-variable-change
   console.log(allData);
 
-  const [savePreEditData, setSavePreEditData] = useState(JSON.parse(JSON.stringify(allData[0])));
-  const [detailData, setDetailData] = useState(JSON.parse(JSON.stringify(savePreEditData)));
-  function handlePwItemClick(name) {
+  const [currentDetailIndex, setCurrentDetailIndex] = useState(0);
+  useEffect(() => {
+    setSavePreEditData(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
+    setDetailData(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
+  }, [currentDetailIndex]);
+
+  const [savePreEditData, setSavePreEditData] = useState(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
+  const [detailData, setDetailData] = useState(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
+  function handlePwItemClick(name, index) {
     // TODO: 这里需要判断
     // 1. 选择的元素是否已经是选中状态，如果是忽略，如果不是
     // 2. 当前被选择的Detail是否在编辑态，如果是，需要弹出提示框提示是否需要存储（存储、不存储、继续编辑）
     // 3. 如果需要存储，则等待存储完成才能跳转；如果存储失败，提示存储失败请重试不跳转；如果不存储直接跳转；如果继续编辑不跳转
-    for (let j = 0, len = allData.length; j < len; j++) {
-      let d = allData[j];
-      if (d.name === name) {
-        setDetailData(d);
-      }
-    }
+    setCurrentDetailIndex(index);
   }
 
   async function onEDOkClick(detailData) {
-    const saveResult = await saveEditDetail(detailData);
+    const saveResult = await BackgroundTask.saveEditDetail(detailData);
     if (saveResult) {
       setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
       setDetailData(detailData);
+      allData[currentDetailIndex] = detailData;
+      setAllData(JSON.parse(JSON.stringify(allData)));
       setEdit(false);
     }
   }
