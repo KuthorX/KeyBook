@@ -21,7 +21,7 @@ function DetailList(props) {
     const textArray = props.data;
 
     const DetailItems = textArray.map((dItem) =>
-        <DetailItem key={dItem.label}
+        <DetailItem key={dItem.id}
             label={dItem.label}
             value={dItem.value} />
     )
@@ -52,11 +52,19 @@ function DetailHeader(props) {
     )
 }
 
-function DetailFooter() {
+function DetailFooter(props) {
+    function onEditClick() {
+        props.onEditClick();
+    }
+
+    function onDeleteClick() {
+        props.onDeleteClick();
+    }
+
     return (
         <div>
-            <button type="button" class="btn btn-outline-primary btn-sm w-100 my-1">Edit</button>
-            <button type="button" class="btn btn-outline-danger btn-sm w-100 my-1">Delete</button>
+            <button type="button" class="btn btn-outline-primary btn-sm w-100 my-1" onClick={onEditClick}>Edit</button>
+            <button type="button" class="btn btn-outline-danger btn-sm w-100 my-1" onClick={onDeleteClick}>Delete</button>
         </div>
     )
 }
@@ -65,11 +73,22 @@ function Detail(props) {
     const detailData = props.detailData;
     let detail;
 
+    function onEditClick() {
+        props.onEditClick();
+    }
+
+    function onDeleteClick() {
+        props.onDeleteClick();
+    }
+
     if (detailData) {
         detail = <div>
             <DetailHeader name={detailData.name} />
             <DetailList data={detailData.detailList} />
-            <DetailFooter />
+            <DetailFooter
+                onEditClick={onEditClick}
+                onDeleteClick={onDeleteClick}
+            />
         </div>;
     } else {
         detail = <div class="text-center">

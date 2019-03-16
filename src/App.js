@@ -4,6 +4,7 @@ import Header from './Header';
 import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
+import { saveEditDetail } from './BackgroundTask';
 require('bootstrap');
 
 
@@ -42,9 +43,9 @@ function Content() {
       "name": data.name,
       "detailList": data.detailList.map(detail => {
         return {
-            "id": Math.random(),
-            "label": detail.label,
-            "value": detail.value,
+          "id": Math.random(),
+          "label": detail.label,
+          "value": detail.value,
         }
       })
     }
@@ -54,7 +55,8 @@ function Content() {
   //（虽然实际上不会影响到最终的 DOM 树，但还是很在意这一点，能不能只加载一次呢？）
   console.log(allData);
 
-  const [detailData, setDetailData] = useState(allData[0]);
+  const [savePreEditData, setSavePreEditData] = useState(JSON.parse(JSON.stringify(allData[0])));
+  const [detailData, setDetailData] = useState(JSON.parse(JSON.stringify(savePreEditData)));
   function handlePwItemClick(name) {
     // TODO: 这里需要判断
     // 1. 选择的元素是否已经是选中状态，如果是忽略，如果不是
@@ -68,7 +70,24 @@ function Content() {
     }
   }
 
-  function onEDAddClick() {
+  async function onEDOkClick(detailData) {
+    const saveResult = await saveEditDetail(detailData);
+    if (saveResult) {
+      setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
+      setDetailData(detailData);
+      setEdit(false);
+    }
+  }
+  function onEDCancelClick() {
+    setEdit(false);
+    // 写到这里的时候，经过测试发现先前需要存一份 detailData 才行，也就是 deepcopy 一下
+    // 在 js 中，deepcopy 用 JSON 序列化方法是最快的
+    // 参考：https://stackoverflow.com/questions/39241046/deepcopy-in-react
+    // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript/5344074#5344074
+    setDetailData(savePreEditData);
+    console.log(savePreEditData);
+  }
+  function onEDItemAddClick() {
     const newDetailList = [...detailData.detailList, {
       "id": Math.random(),
       "label": "",
@@ -85,7 +104,7 @@ function Content() {
 
   }
   function onEDItemInputValueChange(value, index) {
-    
+
   }
   function onEDItemDeleteClick(index) {
     const newDetailList = detailData.detailList.filter((item, j) => {
@@ -98,6 +117,12 @@ function Content() {
     }
     setDetailData(newDetailData);
   }
+  function onDetailEditClick() {
+    setEdit(true);
+  }
+  function onDetailDeleteClick() {
+
+  }
 
   // 是否为编辑态
   const [isEdit, setEdit] = useState(true);
@@ -105,13 +130,19 @@ function Content() {
   if (isEdit) {
     detail = <EditDetail
       detailData={detailData}
-      onAddClick={onEDAddClick}
+      onAddClick={onEDItemAddClick}
       onItemInputLabelChange={onEDItemInputLabelChange}
       onItemInputValueChange={onEDItemInputValueChange}
       onItemDeleteClick={onEDItemDeleteClick}
+      onOkClick={onEDOkClick}
+      onCancelClick={onEDCancelClick}
     />;
   } else {
-    detail = <Detail detailData={detailData} />;
+    detail = <Detail
+      detailData={detailData}
+      onEditClick={onDetailEditClick}
+      onDeleteClick={onDetailDeleteClick}
+    />;
   }
 
   return (

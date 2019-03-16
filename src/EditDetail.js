@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 require('bootstrap');
 
 function EditDetailItem(props) {
-    
+
     const [label, setLabel] = useState(props.label);
     const [value, setValue] = useState(props.value);
 
@@ -11,13 +11,13 @@ function EditDetailItem(props) {
     function onLabelChange(event) {
         let value = event.target.value;
         setLabel(value);
-        // props.onLabelChange(value, props.index);
+        props.onLabelChange(value, props.index);
     }
 
     function onValueChange(event) {
         let value = event.target.value;
         setValue(value);
-        // props.onValueChange(value, props.index);
+        props.onValueChange(value, props.index);
     }
 
     function onDeleteClick(event) {
@@ -111,17 +111,26 @@ function DetailHeader(props) {
     )
 }
 
-function DetailFooter() {
+function DetailFooter(props) {
+
+    function onOkClick() {
+        props.onOkClick();
+    }
+
+    function onCancelClick() {
+        props.onCancelClick();
+    }
+
     return (
         <div>
-            <button type="button" class="btn btn-outline-primary btn-sm w-100 my-1">OK</button>
-            <button type="button" class="btn btn-outline-danger btn-sm w-100 my-1">Cancel</button>
+            <button type="button" class="btn btn-outline-primary btn-sm w-100 my-1" onClick={onOkClick}>OK</button>
+            <button type="button" class="btn btn-outline-danger btn-sm w-100 my-1" onClick={onCancelClick}>Cancel</button>
         </div>
     )
 }
 
 function EditDetail(props) {
-    const detailData = props.detailData;
+    let detailData = props.detailData;
     let detail;
 
     function onAddClick() {
@@ -129,15 +138,25 @@ function EditDetail(props) {
     }
 
     function onItemInputLabelChange(value, index) {
-        props.onItemInputLabelChange(value, index);
+        // props.onItemInputLabelChange(value, index);
+        detailData.detailList[index].label = value;
     }
 
     function onItemInputValueChange(value, index) {
-        props.onItemInputValueChange(value, index);
+        // props.onItemInputValueChange(value, index);
+        detailData.detailList[index].value = value;
     }
 
     function onItemDeleteClick(index) {
         props.onItemDeleteClick(index);
+    }
+
+    function onOkClick() {
+        props.onOkClick(detailData);
+    }
+
+    function onCancelClick() {
+        props.onCancelClick();
     }
 
     if (detailData) {
@@ -150,7 +169,10 @@ function EditDetail(props) {
                 onItemInputValueChange={onItemInputValueChange}
                 onItemDeleteClick={onItemDeleteClick}
             />
-            <DetailFooter />
+            <DetailFooter
+                onOkClick={onOkClick}
+                onCancelClick={onCancelClick}
+            />
         </div>;
     } else {
         detail = <div class="text-center">
