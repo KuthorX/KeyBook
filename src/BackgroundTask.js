@@ -4,7 +4,8 @@
 export function saveEditDetail(detailData) {
     return new Promise(resolve => {
         setTimeout(() => {
-            resolve(true);
+            const r = Math.random();
+            resolve(r > 0.5 ? true : false);
         }, 1000);
     });
 }
