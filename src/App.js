@@ -4,17 +4,27 @@ import Header from './Header';
 import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
+import EditingModal from './EditingModal';
+import SaveAlert from './SaveAlert';
+import Spinners from './Spinners';
 import * as BackgroundTask from './BackgroundTask';
 import $ from 'jquery';
 require('bootstrap');
 
-// TODO: 待添加功能
+// DONE: 已添加功能
+// - 账户 list 展示
+// - 账户 detail 展示、编辑
+// TODO: 待添加功能/bug need to fixed
+// - toast 在不显示的时候挡住了搜索框focus，初步查明是 父级 div 元素拦截了点击事件
+// - 加载中 功能 函数 提取为 Context
 // - Copy value
-// - Delete Account Item
-// - tag 展示、编辑
-// - 目录功能
+// - 账户 list 编辑：添加、删除
 // - 搜索功能
 // - 云存储功能
+// - tag 功能：展示、编辑
+// - 目录功能
+// - 中文语言支持
+// - 
 
 /**
  * @param {props.editingModalAction} 在Detail为编辑态并切换account时触发
@@ -77,7 +87,16 @@ function Content(props) {
     setEdit(false);
     setDetailData(savePreEditData);
   }
+  function onSaved() {
+    const msg = detailData.name + " saved";
+    props.onSaved(msg);
+  }
+  function onSaveFailed() {
+    const msg = detailData.name + " save failed";
+    props.onSaveFailed(msg);
+  }
   async function saveChanges(changeCurrenIndex, targetIndex) {
+    props.showSpinners();
     const saveResult = await BackgroundTask.saveEditDetail(detailData);
     if (saveResult) {
       setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
@@ -88,9 +107,11 @@ function Content(props) {
       if (changeCurrenIndex) {
         setCurrentDetailIndex(targetIndex);
       }
+      onSaved();
     } else {
-      
+      onSaveFailed();
     }
+    props.dismissSpinners();
     return saveResult;
   }
   const editingModalAction = props.editingModalAction;
@@ -113,10 +134,6 @@ function Content(props) {
     }
   }, [editingModalAction]);
   function handlePwItemClick(name, index) {
-    // TODO: 这里需要判断
-    // 1. 选择的元素是否已经是选中状态，如果是忽略，如果不是
-    // 2. 当前被选择的Detail是否在编辑态，如果是，需要弹出提示框提示是否需要存储（存储、不存储、继续编辑）
-    // 3. 如果需要存储，则等待存储完成才能跳转；如果存储失败，提示存储失败请重试不跳转；如果不存储直接跳转；如果继续编辑不跳转
     if (index === currentDetailIndex) {
       console.log("isCurrentIndex");
       return;
@@ -177,21 +194,23 @@ function Content(props) {
   const [isEdit, setEdit] = useState(false);
   let detail;
   if (isEdit) {
-    detail = <EditDetail
-      detailData={detailData}
-      onAddClick={onEDItemAddClick}
-      onItemInputLabelChange={onEDItemInputLabelChange}
-      onItemInputValueChange={onEDItemInputValueChange}
-      onItemDeleteClick={onEDItemDeleteClick}
-      onOkClick={onEDOkClick}
-      onCancelClick={onEDCancelClick}
-    />;
+    detail =
+      <EditDetail
+        detailData={detailData}
+        onAddClick={onEDItemAddClick}
+        onItemInputLabelChange={onEDItemInputLabelChange}
+        onItemInputValueChange={onEDItemInputValueChange}
+        onItemDeleteClick={onEDItemDeleteClick}
+        onOkClick={onEDOkClick}
+        onCancelClick={onEDCancelClick}
+      />;
   } else {
-    detail = <Detail
-      detailData={detailData}
-      onEditClick={onDetailEditClick}
-      onDeleteClick={onDetailDeleteClick}
-    />;
+    detail =
+      <Detail
+        detailData={detailData}
+        onEditClick={onDetailEditClick}
+        onDeleteClick={onDetailDeleteClick}
+      />;
   }
 
   return (
@@ -212,57 +231,18 @@ function Content(props) {
   )
 }
 
-function EditingModal(props) {
-  const editingModalId = props.modalId;
-
-  function onContinueEditClick() {
-    props.onContinueEditClick();
-  }
-
-  function onDiscardClick() {
-    props.onDiscardClick();
-  }
-
-  function onSaveClick() {
-    props.onSaveClick();
-  }
-
-  return (
-    <div>
-      <div class="modal fade" id={editingModalId} tabIndex="-1" role="dialog" aria-labelledby="editingModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              You are editing account detail, what would you do with changes?
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick={onContinueEditClick}>Continue Edit</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick={onDiscardClick}>Discard</button>
-              <button type="button" class="btn btn-primary" data-dismiss="modal" onClick={onSaveClick}>Save</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function App() {
   const editingModalId = "editingModal";
-  const [editingModalAction, setEditingModalAction] = useState({"what": "waiting", "targetIndex": -1});
+  const [editingModalAction, setEditingModalAction] = useState({ "what": "waiting", "targetIndex": -1 });
+  const [saveAlertMsg, setSaveAlertMsg] = useState({ "succeed": false, "msg": "" });
+  const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
 
   function showEditingModal(targetIndex) {
     const newEditingModalAction = {};
     newEditingModalAction.what = "waiting";
     newEditingModalAction.targetIndex = targetIndex;
     setEditingModalAction(newEditingModalAction);
-    $("#" + editingModalId).modal('show');
+    $(`#${editingModalId}`).modal('show');
   }
 
   function onEditingModalContinueEditClick() {
@@ -283,18 +263,49 @@ function App() {
     setEditingModalAction(newEditingModalAction);
   }
 
+  function onContentSaved(msg) {
+    let newSaveAlertMsg = { "succeed": true, "msg": msg };
+    setSaveAlertMsg(newSaveAlertMsg);
+    $('.toast').toast({ "delay": 3000 }).toast('show');
+  }
+
+  function onContentSaveFailed(msg) {
+    let newSaveAlertMsg = { "succeed": false, "msg": msg };
+    setSaveAlertMsg(newSaveAlertMsg);
+    $('.toast').toast({ "delay": 3000 }).toast('show');
+  }
+
+  function showSpinners() {
+    setIfSpinnersShow(true);
+  }
+
+  function dismissSpinners() {
+    setIfSpinnersShow(false);
+  }
+
   return (
     <div className="App">
       <Header />
       <Content
         editingModalAction={editingModalAction}
         showEditingModal={showEditingModal}
+        onSaved={onContentSaved}
+        onSaveFailed={onContentSaveFailed}
+        showSpinners={showSpinners}
+        dismissSpinners={dismissSpinners}
       />
       <EditingModal
         modalId={editingModalId}
         onContinueEditClick={onEditingModalContinueEditClick}
         onDiscardClick={onEditingModalDiscardClick}
         onSaveClick={onEditingModalSaveClick}
+      />
+      <SaveAlert
+        ifSucceed={saveAlertMsg.succeed}
+        msg={saveAlertMsg.msg}
+      />
+      <Spinners
+        ifShow={ifSpinnersShow}
       />
     </div>
   )
