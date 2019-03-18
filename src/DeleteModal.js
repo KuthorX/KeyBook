@@ -1,18 +1,14 @@
 import React from 'react';
 
-function EditingModal(props) {
+function DeleteModal(props) {
     const modalId = props.modalId;
   
-    function onContinueEditClick() {
-      props.onContinueEditClick();
+    function onNoClick() {
+      props.onNoClick();
     }
   
-    function onDiscardClick() {
-      props.onDiscardClick();
-    }
-  
-    function onSaveClick() {
-      props.onSaveClick();
+    function onYesClick() {
+      props.onYesClick();
     }
   
     return (
@@ -27,12 +23,11 @@ function EditingModal(props) {
                 </button>
               </div>
               <div class="modal-body">
-                You are editing account detail, what would you do with changes?
+                Are you sure to delete this account?
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick={onContinueEditClick}>Continue Edit</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal" onClick={onDiscardClick}>Discard</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" onClick={onSaveClick}>Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick={onNoClick}>No</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" onClick={onYesClick}>Yes</button>
               </div>
             </div>
           </div>
@@ -41,4 +36,4 @@ function EditingModal(props) {
     )
   }
 
-  export default EditingModal;
+  export default DeleteModal;

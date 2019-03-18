@@ -5,15 +5,28 @@ function PwListItem(props) {
     const index = props.index;
     const activeIndex = props.activeIndex;
 
-    function onPwListItemClick() {
-        props.handleItemClick(name, index);
+    function onItemClick() {
+        props.onItemClick(name, index);
     }
 
     let item;
     if (index === activeIndex) {
-        item = <a href="#" class="list-group-item list-group-item-action active" onClick={onPwListItemClick}>{name}</a>;
+        item =
+            <div class="text-break">
+                <a href="#" class="list-group-item list-group-item-action active"
+                    onClick={onItemClick}>
+                    {name}
+                </a>
+            </div>
+            ;
     } else {
-        item = <a href="#" class="list-group-item list-group-item-action" onClick={onPwListItemClick}>{name}</a>
+        item =
+            <div class="text-break">
+                <a href="#" class="list-group-item list-group-item-action"
+                    onClick={onItemClick}>
+                    {name}
+                </a>
+            </div>
     }
 
     return (
@@ -23,12 +36,29 @@ function PwListItem(props) {
     )
 }
 
+function AsideHead(props) {
+    function onAddClick() {
+        props.onAddClick();
+    }
+
+    return (
+        <div class="text-break w-100 mb-1">
+            <button type="button" class="btn-sm btn-light w-100" onClick={onAddClick}>Add Account</button>
+        </div>
+    )
+
+}
+
 function Aside(props) {
 
     const activeIndex = props.activeIndex;
 
-    function handleItemClick(name, index) {
-        props.handlePwItemClick(name, index);
+    function onAddClick() {
+        props.onAccountAddClick();
+    }
+
+    function onPwItemClick(name, index) {
+        props.onPwItemClick(name, index);
     }
 
     const pwListItems = props.data.map((pwListItem, index) =>
@@ -37,14 +67,20 @@ function Aside(props) {
             activeIndex={activeIndex}
             index={index}
             name={pwListItem.name}
-            handleItemClick={handleItemClick}
+            onItemClick={onPwItemClick}
         />
     )
 
     return (
-        <div class="list-group list-group-flush">
-            {pwListItems}
+        <div>
+            <AsideHead
+                onAddClick={onAddClick}
+            />
+            <div class="list-group list-group-flush">
+                {pwListItems}
+            </div>
         </div>
+
     )
 }
 

@@ -5,7 +5,8 @@ import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
 import EditingModal from './EditingModal';
-import SaveAlert from './SaveAlert';
+import DeleteModal from './DeleteModal';
+import SaveToast from './SaveToast';
 import Spinners from './Spinners';
 import * as BackgroundTask from './BackgroundTask';
 import $ from 'jquery';
@@ -15,16 +16,14 @@ require('bootstrap');
 // - 账户 list 展示
 // - 账户 detail 展示、编辑
 // TODO: 待添加功能/bug need to fixed
-// - toast 在不显示的时候挡住了搜索框focus，初步查明是 父级 div 元素拦截了点击事件
-// - 加载中 功能 函数 提取为 Context
-// - Copy value
 // - 账户 list 编辑：添加、删除
+// - Router
+// - 密码锁：云密码、本机密码
 // - 搜索功能
 // - 云存储功能
 // - tag 功能：展示、编辑
 // - 目录功能
 // - 中文语言支持
-// - 
 
 /**
  * @param {props.editingModalAction} 在Detail为编辑态并切换account时触发
@@ -105,6 +104,7 @@ function Content(props) {
       setAllData(JSON.parse(JSON.stringify(allData)));
       setEdit(false);
       if (changeCurrenIndex) {
+        console.log(targetIndex)
         setCurrentDetailIndex(targetIndex);
       }
       onSaved();
@@ -116,7 +116,6 @@ function Content(props) {
   }
   const editingModalAction = props.editingModalAction;
   useEffect(() => {
-    console.log(editingModalAction);
     switch (editingModalAction.what) {
       case "waiting":
         break;
@@ -133,7 +132,24 @@ function Content(props) {
         throw Error("editingModalAction.what is illegal");
     }
   }, [editingModalAction]);
-  function handlePwItemClick(name, index) {
+  const deleteModalAction = props.deleteModalAction;
+  useEffect(() => {
+    switch (deleteModalAction.what) {
+      case "waiting":
+        break;
+      case "continue":
+        break;
+      case "delete":
+        // TODO: Delete
+        break;
+      default:
+        throw Error("deleteModalAction.what is illegal");
+    }
+  }, [editingModalAction]);
+  function onAccountAddClick() {
+    // TODO: Add
+  }
+  function onPwItemClick(name, index) {
     if (index === currentDetailIndex) {
       console.log("isCurrentIndex");
       return;
@@ -148,7 +164,7 @@ function Content(props) {
   }
 
   function onEDOkClick(detailData) {
-    saveChanges(detailData);
+    saveChanges(false, detailData);
   }
   function onEDCancelClick() {
     discardChanges();
@@ -187,7 +203,7 @@ function Content(props) {
     setEdit(true);
   }
   function onDetailDeleteClick() {
-
+    props.showDeleteModal(currentDetailIndex);
   }
 
   // 是否为编辑态
@@ -219,8 +235,9 @@ function Content(props) {
         <div class="col-sm-3 border-right">
           <Aside
             data={allData}
-            handlePwItemClick={handlePwItemClick}
+            onPwItemClick={onPwItemClick}
             activeIndex={currentDetailIndex}
+            onAccountAddClick={onAccountAddClick}
           />
         </div>
         <div class="col-sm d-none d-sm-block">
@@ -233,45 +250,67 @@ function Content(props) {
 
 function App() {
   const editingModalId = "editingModal";
+  const deleteModalId = "deleteModal";
   const [editingModalAction, setEditingModalAction] = useState({ "what": "waiting", "targetIndex": -1 });
-  const [saveAlertMsg, setSaveAlertMsg] = useState({ "succeed": false, "msg": "" });
+  const [deleteModalAction, setDeleteModalAction] = useState({ "what": "waiting", "targetIndex": -1 });
+  const [saveAlertMsg, setSaveToastMsg] = useState({ "succeed": false, "msg": "" });
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
 
   function showEditingModal(targetIndex) {
-    const newEditingModalAction = {};
-    newEditingModalAction.what = "waiting";
-    newEditingModalAction.targetIndex = targetIndex;
-    setEditingModalAction(newEditingModalAction);
+    const newAction = {};
+    newAction.what = "waiting";
+    newAction.targetIndex = targetIndex;
+    setEditingModalAction(newAction);
     $(`#${editingModalId}`).modal('show');
   }
 
   function onEditingModalContinueEditClick() {
-    const newEditingModalAction = JSON.parse(JSON.stringify(editingModalAction));
-    newEditingModalAction.what = "continue";
-    setEditingModalAction(newEditingModalAction);
+    const newAction = JSON.parse(JSON.stringify(editingModalAction));
+    newAction.what = "continue";
+    setEditingModalAction(newAction);
   }
 
   function onEditingModalDiscardClick() {
-    const newEditingModalAction = JSON.parse(JSON.stringify(editingModalAction));
-    newEditingModalAction.what = "discard";
-    setEditingModalAction(newEditingModalAction);
+    const newAction = JSON.parse(JSON.stringify(editingModalAction));
+    newAction.what = "discard";
+    setEditingModalAction(newAction);
   }
 
   function onEditingModalSaveClick() {
-    const newEditingModalAction = JSON.parse(JSON.stringify(editingModalAction));
-    newEditingModalAction.what = "save";
-    setEditingModalAction(newEditingModalAction);
+    const newAction = JSON.parse(JSON.stringify(editingModalAction));
+    newAction.what = "save";
+    setEditingModalAction(newAction);
+  }
+
+  function showDeleteModal(targetIndex) {
+    const newAction = {};
+    newAction.what = "waiting";
+    newAction.targetIndex = targetIndex;
+    setDeleteModalAction(newAction);
+    $(`#${deleteModalId}`).modal('show');
+  }
+
+  function onDeleteModalNoClick() {
+    const newAction = JSON.parse(JSON.stringify(deleteModalAction));
+    newAction.what = "continue";
+    setDeleteModalAction(newAction);
+  }
+
+  function onDeleteModalYesClick() {
+    const newAction = JSON.parse(JSON.stringify(deleteModalAction));
+    newAction.what = "delete";
+    setDeleteModalAction(newAction);
   }
 
   function onContentSaved(msg) {
-    let newSaveAlertMsg = { "succeed": true, "msg": msg };
-    setSaveAlertMsg(newSaveAlertMsg);
+    let newSaveToastMsg = { "succeed": true, "msg": msg };
+    setSaveToastMsg(newSaveToastMsg);
     $('.toast').toast({ "delay": 3000 }).toast('show');
   }
 
   function onContentSaveFailed(msg) {
-    let newSaveAlertMsg = { "succeed": false, "msg": msg };
-    setSaveAlertMsg(newSaveAlertMsg);
+    let newSaveToastMsg = { "succeed": false, "msg": msg };
+    setSaveToastMsg(newSaveToastMsg);
     $('.toast').toast({ "delay": 3000 }).toast('show');
   }
 
@@ -289,10 +328,13 @@ function App() {
       <Content
         editingModalAction={editingModalAction}
         showEditingModal={showEditingModal}
+        deleteModalAction={deleteModalAction}
+        showDeleteModal={showDeleteModal}
         onSaved={onContentSaved}
         onSaveFailed={onContentSaveFailed}
         showSpinners={showSpinners}
         dismissSpinners={dismissSpinners}
+        saveAlertMsg={saveAlertMsg}
       />
       <EditingModal
         modalId={editingModalId}
@@ -300,10 +342,15 @@ function App() {
         onDiscardClick={onEditingModalDiscardClick}
         onSaveClick={onEditingModalSaveClick}
       />
-      <SaveAlert
-        ifSucceed={saveAlertMsg.succeed}
-        msg={saveAlertMsg.msg}
+      <DeleteModal
+        modalId={deleteModalId}
+        onNoClick={onDeleteModalNoClick}
+        onYesClick={onDeleteModalYesClick}
       />
+      <SaveToast
+          ifSucceed={saveAlertMsg.succeed}
+          msg={saveAlertMsg.msg}
+        />
       <Spinners
         ifShow={ifSpinnersShow}
       />

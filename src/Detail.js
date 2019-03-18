@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
+import {copyTextToClipboard} from './Tools';
 require('bootstrap');
 
 function DetailItem(props) {
+    const label = props.label;
+    const value = props.value;
+
+    function onCopyClick() {
+        copyTextToClipboard(value)
+    }
+
     return (
         <div class="row py-1 border-top">
             <div class="col-2 my-auto text-secondary p-0">
-                {props.label}
+                {label}
             </div>
-            <div class="col my-auto text-secondary">
-                {props.value}
+            <div id={props.copyKey} class="col my-auto text-secondary">
+                {value}
             </div>
             <div class="col-4 my-auto p-0">
-                <button type="button" class="btn btn-outline-secondary btn-sm w-100">Copy</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100" onClick={onCopyClick}>Copy</button>
             </div>
         </div>
     )
@@ -22,6 +30,7 @@ function DetailList(props) {
 
     const DetailItems = textArray.map((dItem) =>
         <DetailItem key={dItem.id}
+            copyKey={dItem.id}
             label={dItem.label}
             value={dItem.value} />
     )
