@@ -1,15 +1,15 @@
 import React from 'react';
-import $ from 'jquery';
 
-function SaveToast(props) {
+function CopyToast(props) {
+    const id = props.toastId;
     const ifSucceed = props.ifSucceed;
     const msg = props.msg;
 
     let alert;
-
+    
     if (ifSucceed) {
         alert =
-            <div class="toast bg-success position-fixed" role="alert" aria-live="assertive" aria-atomic="true"
+            <div id={id} class="toast bg-success position-fixed" role="alert" aria-live="assertive" aria-atomic="true"
                 style={{
                     "top": "0", "left": "0", "right": "0",
                     "width": "auto", "height": "auto", "margin": "0 auto"
@@ -20,7 +20,7 @@ function SaveToast(props) {
             </div>;
     } else {
         alert =
-            <div class="toast bg-danger position-fixed" role="alert" aria-live="assertive" aria-atomic="true"
+            <div id={id} class="toast bg-danger position-fixed" role="alert" aria-live="assertive" aria-atomic="true"
                 style={{
                     "top": "0", "left": "0", "right": "0",
                     "width": "auto", "height": "auto", "margin": "0 auto"
@@ -38,4 +38,4 @@ function SaveToast(props) {
     )
 }
 
-export default SaveToast;
+export default CopyToast;

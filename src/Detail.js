@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
-import {copyTextToClipboard} from './Tools';
+import { copyTextToClipboard } from './Tools';
+import CopyToast from './toast/CopyToast';
+import $ from 'jquery';
 require('bootstrap');
 
 function DetailItem(props) {
     const label = props.label;
     const value = props.value;
 
+    const copyToastId = "copyToastId";
+    const [copyToastMsg, setCopyToastMsg] = useState({ "ifSucceed": false, "msg": "" });
+
     function onCopyClick() {
-        copyTextToClipboard(value)
+        let result = copyTextToClipboard(value);
+        if (result) {
+            setCopyToastMsg({ "ifSucceed": true, "msg": "Copy Succeed" });
+        } else {
+            setCopyToastMsg({ "ifSucceed": false, "msg": "Copy Fail" });
+        }
+        $(`#${copyToastId}`).toast({ "delay": 2500 }).toast('show');
     }
 
     return (
@@ -21,6 +32,11 @@ function DetailItem(props) {
             <div class="col-4 my-auto p-0">
                 <button type="button" class="btn btn-outline-secondary btn-sm w-100" onClick={onCopyClick}>Copy</button>
             </div>
+            <CopyToast
+                toastId={copyToastId}
+                ifSucceed={copyToastMsg.ifSucceed}
+                msg={copyToastMsg.msg}
+            />
         </div>
     )
 }
@@ -80,6 +96,7 @@ function DetailFooter(props) {
 
 function Detail(props) {
     const detailData = props.detailData;
+
     let detail;
 
     function onEditClick() {

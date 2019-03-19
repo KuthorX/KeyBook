@@ -63,7 +63,7 @@ function Aside(props) {
 
     const pwListItems = props.data.map((pwListItem, index) =>
         <PwListItem
-            key={pwListItem.name}
+            key={pwListItem.id}
             activeIndex={activeIndex}
             index={index}
             name={pwListItem.name}

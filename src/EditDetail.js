@@ -113,7 +113,7 @@ function EditDetailHeader(props) {
     }
 
     return (
-        <div>
+        <div class="my-2">
             <input type="text" aria-label="Label" value={name} onChange={onNameChange} class="form-control" />
         </div>
     )
@@ -150,12 +150,10 @@ function EditDetail(props) {
     }
 
     function onItemInputLabelChange(value, index) {
-        // props.onItemInputLabelChange(value, index);
         detailData.detailList[index].label = value;
     }
 
     function onItemInputValueChange(value, index) {
-        // props.onItemInputValueChange(value, index);
         detailData.detailList[index].value = value;
     }
 
