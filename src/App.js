@@ -148,18 +148,43 @@ function Content(props) {
   }, [editingModalAction]);
   function onAccountAddClick() {
     // TODO: Add
+    if (isEdit) {
+      props.showEditingModal(-1);
+      return;
+    }
+    let newAllData = [{
+      "name": "NewAccount",
+      "detailList": [{
+        "label": "",
+        "value": "",
+      }]
+    }, ...allData];
+    let newAllDataWithId = newAllData.map(data => {
+      return {
+        "name": data.name,
+        "detailList": data.detailList.map(detail => {
+          return {
+            "id": Math.random(),
+            "label": detail.label,
+            "value": detail.value,
+          }
+        })
+      }
+    })
+    setAllData(newAllDataWithId);
+    setCurrentDetailIndex(0);
+    setSavePreEditData(JSON.parse(JSON.stringify(newAllDataWithId[0])));
+    setDetailData(JSON.parse(JSON.stringify(newAllDataWithId[0])));
+    setEdit(true);
   }
   function onPwItemClick(name, index) {
     if (index === currentDetailIndex) {
-      console.log("isCurrentIndex");
       return;
     }
     if (isEdit) {
-      console.log("isEdit");
       props.showEditingModal(index);
       return;
     }
-    console.log("handlePwItemClick if out");
     setCurrentDetailIndex(index);
   }
 
@@ -348,9 +373,9 @@ function App() {
         onYesClick={onDeleteModalYesClick}
       />
       <SaveToast
-          ifSucceed={saveAlertMsg.succeed}
-          msg={saveAlertMsg.msg}
-        />
+        ifSucceed={saveAlertMsg.succeed}
+        msg={saveAlertMsg.msg}
+      />
       <Spinners
         ifShow={ifSpinnersShow}
       />
