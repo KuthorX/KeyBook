@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 function PwListItem(props) {
     const name = props.name;
@@ -13,19 +14,19 @@ function PwListItem(props) {
     if (index === activeIndex) {
         item =
             <div class="text-break">
-                <a href="#" class="list-group-item list-group-item-action active"
+                <Link to={`/account/${name}`} class="list-group-item list-group-item-action active"
                     onClick={onItemClick}>
                     {name}
-                </a>
+                </Link>
             </div>
             ;
     } else {
         item =
             <div class="text-break">
-                <a href="#" class="list-group-item list-group-item-action"
+            <Link to={`/account/${name}`} class="list-group-item list-group-item-action"
                     onClick={onItemClick}>
                     {name}
-                </a>
+                </Link>
             </div>
     }
 

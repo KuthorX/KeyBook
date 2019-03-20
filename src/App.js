@@ -10,6 +10,7 @@ import SaveToast from './toast/SaveToast';
 import Spinners from './Spinners';
 import * as BackgroundTask from './BackgroundTask';
 import $ from 'jquery';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 require('bootstrap');
 
 // DONE: 已添加功能
@@ -304,36 +305,46 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Header />
-      <Content
-        showWaringToast={showWaringToast}
-        deleteModalAction={deleteModalAction}
-        showDeleteModal={showDeleteModal}
-        onSaved={onContentSaved}
-        onSaveFailed={onContentSaveFailed}
-        showSpinners={showSpinners}
-        dismissSpinners={dismissSpinners}
-        saveToastMsg={saveToastMsg}
-      />
-      <DeleteModal
-        modalId={deleteModalId}
-        onNoClick={onDeleteModalNoClick}
-        onYesClick={onDeleteModalYesClick}
-      />
-      <SaveToast
-        toastId={saveToastId}
-        ifSucceed={saveToastMsg.succeed}
-        msg={saveToastMsg.msg}
-      />
-      <WarningToast
-        toastId={warningToastId}
-        msg={warningToastMsg.msg}
-      />
-      <Spinners
-        ifShow={ifSpinnersShow}
-      />
-    </div>
+    <Router>
+      <div className="App">
+        <Header />
+        <Route path="/"
+          render={
+            () => {
+              return (
+                <Content
+                  showWaringToast={showWaringToast}
+                  deleteModalAction={deleteModalAction}
+                  showDeleteModal={showDeleteModal}
+                  onSaved={onContentSaved}
+                  onSaveFailed={onContentSaveFailed}
+                  showSpinners={showSpinners}
+                  dismissSpinners={dismissSpinners}
+                  saveToastMsg={saveToastMsg}
+                />
+              )
+            }
+          }
+        />
+        <DeleteModal
+          modalId={deleteModalId}
+          onNoClick={onDeleteModalNoClick}
+          onYesClick={onDeleteModalYesClick}
+        />
+        <SaveToast
+          toastId={saveToastId}
+          ifSucceed={saveToastMsg.succeed}
+          msg={saveToastMsg.msg}
+        />
+        <WarningToast
+          toastId={warningToastId}
+          msg={warningToastMsg.msg}
+        />
+        <Spinners
+          ifShow={ifSpinnersShow}
+        />
+      </div>
+    </Router>
   )
 }
 
