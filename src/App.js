@@ -17,16 +17,19 @@ require('bootstrap');
 // - 账户 list 展示
 // - 账户 detail 展示、编辑
 // - 账户 list 编辑：添加、删除
-// TODO: 待添加功能/bug need to fixed
 // - Router
+// TODO: 待添加功能/bug need to fixed
+// - 云存储功能
 // - 密码锁：云密码、本机密码
 // - 搜索功能
-// - 云存储功能
 // - tag 功能：展示、编辑
 // - 目录功能
 // - 中文语言支持
 
 function Content(props) {
+
+  console.log(props);
+  const accountName = props.match.params.accountName;
 
   var recieveData = [
     {
@@ -71,9 +74,19 @@ function Content(props) {
     }
   }));
 
+  let findIndex = -1;
+  for (let i = 0; i < allData.length; i++) {
+    const account = allData[i];
+    const name = account.name;
+    if (name === accountName) {
+      findIndex = i;
+      break;
+    }
+  }
+
   const [savePreEditData, setSavePreEditData] = useState(null);
   const [detailData, setDetailData] = useState(null);
-  const [currentDetailIndex, setCurrentDetailIndex] = useState(0);
+  const [currentDetailIndex, setCurrentDetailIndex] = useState(findIndex);
   useEffect(() => {
     if (currentDetailIndex >= 0) {
       setSavePreEditData(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
@@ -231,21 +244,24 @@ function Content(props) {
   }
 
   return (
-    <div class="container-fluid pw-content py-1 border-bottom">
-      <div class="row">
-        <div class="col-sm-3 border-right">
-          <Aside
-            data={allData}
-            onPwItemClick={onPwItemClick}
-            activeIndex={currentDetailIndex}
-            onAccountAddClick={onAccountAddClick}
-          />
-        </div>
-        <div class="col-sm d-none d-sm-block">
-          {detail}
+    <Router>
+      <div class="container-fluid pw-content py-1 border-bottom">
+        <div class="row">
+          <div class="col-sm-3 border-right">
+            <Aside
+              {...props}
+              data={allData}
+              onPwItemClick={onPwItemClick}
+              activeIndex={currentDetailIndex}
+              onAccountAddClick={onAccountAddClick}
+            />
+          </div>
+          <div class="col-sm d-none d-sm-block">
+            {detail}
+          </div>
         </div>
       </div>
-    </div>
+    </Router>
   )
 }
 
@@ -308,11 +324,31 @@ function App() {
     <Router>
       <div className="App">
         <Header />
-        <Route path="/"
+        <Route exact path="/"
           render={
-            () => {
+            (props) => {
               return (
                 <Content
+                  {...props}
+                  showWaringToast={showWaringToast}
+                  deleteModalAction={deleteModalAction}
+                  showDeleteModal={showDeleteModal}
+                  onSaved={onContentSaved}
+                  onSaveFailed={onContentSaveFailed}
+                  showSpinners={showSpinners}
+                  dismissSpinners={dismissSpinners}
+                  saveToastMsg={saveToastMsg}
+                />
+              )
+            }
+          }
+        />
+        <Route path="/account/:accountName"
+          render={
+            (props) => {
+              return (
+                <Content
+                  {...props}
                   showWaringToast={showWaringToast}
                   deleteModalAction={deleteModalAction}
                   showDeleteModal={showDeleteModal}
