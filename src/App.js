@@ -20,7 +20,6 @@ require('bootstrap');
 // - Router
 // TODO: 待添加功能/bug need to fixed
 // - 云存储功能
-// - 密码锁：云密码、本机密码
 // - 搜索功能
 // - tag 功能：展示、编辑
 // - 目录功能
