@@ -10,7 +10,7 @@ import SaveToast from './toast/SaveToast';
 import Spinners from './Spinners';
 import * as BackgroundTask from './BackgroundTask';
 import $ from 'jquery';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 require('bootstrap');
 
 // DONE: 已添加功能
@@ -18,10 +18,10 @@ require('bootstrap');
 // - 账户 detail 展示、编辑
 // - 账户 list 编辑：添加、删除
 // - Router
+// - tag 功能：展示、编辑
 // TODO: 待添加功能/bug need to fixed
 // - 云存储功能
-// - 搜索功能
-// - tag 功能：展示、编辑
+// - 搜索功能：account、tags
 // - 目录功能
 // - 中文语言支持
 
@@ -33,6 +33,7 @@ function Content(props) {
   var recieveData = [
     {
       "name": "MyAccount-1",
+      "tags": ["a", "b"],
       "detailList": [{
         "label": "UserName",
         "value": "Sora",
@@ -44,6 +45,7 @@ function Content(props) {
     },
     {
       "name": "MyAccount-2",
+      "tags": ["a", "c"],
       "detailList": [{
         "label": "UserName",
         "value": "Ghost",
@@ -63,6 +65,7 @@ function Content(props) {
     return {
       "id": Math.random(),
       "name": data.name,
+      "tags": data.tags,
       "detailList": data.detailList.map(detail => {
         return {
           "id": Math.random(),
@@ -105,7 +108,7 @@ function Content(props) {
     const msg = detailData.name + " save failed";
     props.onSaveFailed(msg);
   }
-  async function saveChanges(changeCurrenIndex, targetIndex) {
+  async function saveChanges(detailData) {
     props.showSpinners();
     const saveResult = await BackgroundTask.saveEditDetail(detailData);
     if (saveResult) {
@@ -114,10 +117,6 @@ function Content(props) {
       allData[currentDetailIndex] = detailData;
       setAllData(JSON.parse(JSON.stringify(allData)));
       setEdit(false);
-      if (changeCurrenIndex) {
-        console.log(targetIndex)
-        setCurrentDetailIndex(targetIndex);
-      }
       onSaved();
     } else {
       onSaveFailed();
@@ -143,6 +142,7 @@ function Content(props) {
     let newAllData = [{
       "id": Math.random(),
       "name": "NewAccount",
+      "tags": [],
       "detailList": [{
         "id": Math.random(),
         "label": "",
@@ -186,34 +186,10 @@ function Content(props) {
   }
 
   function onEDOkClick(detailData) {
-    saveChanges(false, detailData);
+    saveChanges(detailData);
   }
   function onEDCancelClick() {
     discardChanges();
-  }
-  function onEDItemAddClick() {
-    const newDetailList = [...detailData.detailList, {
-      "id": Math.random(),
-      "label": "",
-      "value": "",
-    }];
-    const newName = detailData.name;
-    const newDetailData = {
-      "name": newName,
-      "detailList": newDetailList
-    }
-    setDetailData(newDetailData);
-  }
-  function onEDItemDeleteClick(index) {
-    const newDetailList = detailData.detailList.filter((item, j) => {
-      return j !== index
-    });
-    const newName = detailData.name;
-    const newDetailData = {
-      "name": newName,
-      "detailList": newDetailList
-    }
-    setDetailData(newDetailData);
   }
   function onDetailEditClick() {
     setEdit(true);
@@ -228,8 +204,6 @@ function Content(props) {
     detail =
       <EditDetail
         detailData={detailData}
-        onAddClick={onEDItemAddClick}
-        onItemDeleteClick={onEDItemDeleteClick}
         onOkClick={onEDOkClick}
         onCancelClick={onEDCancelClick}
       />;
@@ -323,7 +297,7 @@ function App() {
     <Router>
       <div className="App">
         <Header />
-        <Route exact path="/"
+        <Route exact path="/account"
           render={
             (props) => {
               return (

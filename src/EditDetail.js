@@ -6,8 +6,6 @@ function EditDetailItem(props) {
     const [label, setLabel] = useState(props.label);
     const [value, setValue] = useState(props.value);
 
-    // Explanation: 目前 input 标签改动并不向上传递事件切重新赋值 props，因为这么做会导致 input 重置 focus 状态
-    // 当前做法在编辑态只在该组件更新 lable、value，提交数据时请求网络，存储成功后退回阅读态时再更新 props
     function onLabelChange(event) {
         let value = event.target.value;
         setLabel(value);
@@ -43,11 +41,9 @@ function EditDetailItem(props) {
 }
 
 function EditDetailList(props) {
-    const name = props.data.name;
-    const detaiiList = props.data.detailList;
+    const detailList = props.detailList;
 
     function onItemInputLabelChange(value, index) {
-        console.log(value, index);
         props.onItemInputLabelChange(value, index);
     }
 
@@ -59,7 +55,7 @@ function EditDetailList(props) {
         props.onItemDeleteClick(index);
     }
 
-    const DetailItems = detaiiList.map((dItem, index) =>
+    const DetailItems = detailList.map((dItem, index) =>
         <EditDetailItem key={dItem.id}
             label={dItem.label}
             value={dItem.value}
@@ -113,8 +109,29 @@ function EditDetailHeader(props) {
     }
 
     return (
-        <div class="my-2">
+        <div class="my-2 pb-2 border-bottom">
             <input type="text" aria-label="Label" value={name} onChange={onNameChange} class="form-control" />
+        </div>
+    )
+}
+
+function EditDetailTags(props) {
+    const tags = props.tags;
+    let tempStr = "";
+    for (let i = 0; i < tags.length; i++) {
+        tempStr += tags[i] + ";";
+    }
+    const [tagStr, setTagStr] = useState(tempStr);
+
+    function onTagChange(event) {
+        let value = event.target.value;
+        setTagStr(value);
+        props.onTagChange(value);
+    }
+
+    return (
+        <div class="my-2">
+            <input type="text" aria-label="Label" value={tagStr} onChange={onTagChange} class="form-control" />
         </div>
     )
 }
@@ -138,15 +155,23 @@ function DetailFooter(props) {
 }
 
 function EditDetail(props) {
-    let detailData = props.detailData;
+    const [detailData, setDetailData] = useState(JSON.parse(JSON.stringify(props.detailData)));
     let detail;
-
-    function onAddClick() {
-        props.onAddClick();
-    }
 
     function onInputNameChange(value) {
         detailData.name = value;
+    }
+
+    function onInputTagChange(value) {
+        let newArray = [];
+        let tags = value.split(";")
+        for (let i = 0; i < tags.length; i++) {
+            let temp = tags[i];
+            if (temp !== "") {
+                newArray.push(temp);
+            }
+        }
+        detailData.tags = newArray;
     }
 
     function onItemInputLabelChange(value, index) {
@@ -157,8 +182,32 @@ function EditDetail(props) {
         detailData.detailList[index].value = value;
     }
 
+    function onAddClick() {
+        const newDetailList = [...detailData.detailList, {
+            "id": Math.random(),
+            "label": "",
+            "value": "",
+        }];
+        const newName = detailData.name;
+        const newDetailData = {
+            "name": newName,
+            "tags": detailData.tags,
+            "detailList": newDetailList
+        }
+        setDetailData(newDetailData);
+    }
+
     function onItemDeleteClick(index) {
-        props.onItemDeleteClick(index);
+        const newDetailList = detailData.detailList.filter((item, j) => {
+            return j !== index
+        });
+        const newName = detailData.name;
+        const newDetailData = {
+            "name": newName,
+            "tags": detailData.tags,
+            "detailList": newDetailList
+        }
+        setDetailData(newDetailData);
     }
 
     function onOkClick() {
@@ -175,8 +224,12 @@ function EditDetail(props) {
                 name={detailData.name}
                 onNameChange={onInputNameChange}
             />
+            <EditDetailTags
+                tags={detailData.tags}
+                onTagChange={onInputTagChange}
+            />
             <EditDetailList
-                data={detailData}
+                detailList={detailData.detailList}
                 onAddClick={onAddClick}
                 onItemInputLabelChange={onItemInputLabelChange}
                 onItemInputValueChange={onItemInputValueChange}

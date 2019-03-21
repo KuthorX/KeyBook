@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { copyTextToClipboard } from './Tools';
 import CopyToast from './toast/CopyToast';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import $ from 'jquery';
 require('bootstrap');
 
@@ -72,7 +73,26 @@ function DetailList(props) {
 function DetailHeader(props) {
     return (
         <div>
-            <p class="my-auto py-2 text-secondary font-italic">{props.name}</p>
+            <h5 class="my-auto py-2 text-secondary font-italic border-bottom">{props.name}</h5>
+        </div>
+    )
+}
+
+function DetailTag(props) {
+    return (
+        <Link to={"/tags/" + props.value} class="text-decoration-none mx-1">{props.value}</Link>
+    )
+}
+
+function DetailTags(props) {
+    const tags = props.tags;
+    const detailTags = tags.map((tag) =>
+        <DetailTag key={tag.id}
+            value={tag} />
+    )
+    return (
+        <div>
+            <p class="my-auto py-2 text-secondary">Tags <span> {detailTags} </span></p>
         </div>
     )
 }
@@ -110,6 +130,7 @@ function Detail(props) {
     if (detailData) {
         detail = <div>
             <DetailHeader name={detailData.name} />
+            <DetailTags tags={detailData.tags} />
             <DetailList data={detailData.detailList} />
             <DetailFooter
                 onEditClick={onEditClick}
