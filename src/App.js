@@ -11,6 +11,7 @@ import Spinners from './Spinners';
 import * as BackgroundTask from './BackgroundTask';
 import $ from 'jquery';
 import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
+import { all } from 'q';
 require('bootstrap');
 
 // DONE: 已添加功能
@@ -63,6 +64,7 @@ function Content(props) {
     }
   ]
 
+  const [tags, setTags] = useState({});
   const [allData, setAllData] = useState(recieveData.map(data => {
     return {
       "id": Math.random(),
@@ -77,6 +79,19 @@ function Content(props) {
       })
     }
   }));
+  useEffect(() => {
+    let newTags = {};
+    allData.map(data => {
+      let tags = data.tags;
+      tags.map(tag => {
+        if (!newTags[tag]) {
+          newTags[tag] = [];
+        }
+        newTags[tag].push(data);
+      });
+    });
+    setTags(newTags);
+  }, [allData]);
 
   let findIndex = -1;
   for (let i = 0; i < allData.length; i++) {

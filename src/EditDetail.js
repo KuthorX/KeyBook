@@ -163,14 +163,18 @@ function EditDetail(props) {
     }
 
     function onInputTagChange(value) {
+        let newSet = new Set();
         let newArray = [];
         let tags = value.split(";")
         for (let i = 0; i < tags.length; i++) {
             let temp = tags[i];
             if (temp !== "") {
-                newArray.push(temp);
+                newSet.add(temp);
             }
         }
+        newSet.forEach(item => {
+            newArray.push(item);
+        });
         detailData.tags = newArray;
     }
 
