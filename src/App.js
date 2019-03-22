@@ -21,8 +21,10 @@ require('bootstrap');
 // - tag 功能：展示、编辑
 // TODO: 待添加功能/bug need to fixed
 // - 云存储功能
+// - 随机生成密码工具（max：128-256）
 // - 搜索功能：account、tags
 // - 目录功能
+// - 关联文件功能
 // - 中文语言支持
 
 function Content(props) {
