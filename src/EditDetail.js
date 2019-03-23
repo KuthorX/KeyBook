@@ -195,6 +195,7 @@ function EditDetail(props) {
         const newName = detailData.name;
         const newDetailData = {
             "name": newName,
+            "id": detailData.id,
             "tags": detailData.tags,
             "detailList": newDetailList
         }

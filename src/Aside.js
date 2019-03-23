@@ -10,7 +10,7 @@ function PwListItem(props) {
         props.onItemClick(name, index);
     }
 
-    function onItemMouseEnter() {
+    function onItemMouseEnter(event) {
         props.onItemClick(name, index);
     }
 
@@ -21,18 +21,15 @@ function PwListItem(props) {
     let item;
     if (index === activeIndex) {
         item =
-            <div class="text-break">
-                <Link to={`/account/${name}`} class="list-group-item list-group-item-action active">
-                    {name}
-                </Link>
+            <div class="text-break list-group-item list-group-item-action active">
+                {name}
             </div>
             ;
     } else {
         item =
-            <div class="text-break" onMouseEnter={onItemMouseEnter} onFocus={onItemFocus} onClick={onItemClick}>
-                <Link to={`/account/${name}`} class="list-group-item list-group-item-action">
-                    {name}
-                </Link>
+            <div class="text-break list-group-item list-group-item-action"
+                onMouseOver={onItemMouseEnter} onFocus={onItemFocus} onClick={onItemClick}>
+                {name}
             </div>
     }
 

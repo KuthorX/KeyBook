@@ -30,38 +30,29 @@ require('bootstrap');
 // - 中文语言支持
 
 function Content(props) {
-
-  const accountName = props.match.params.accountName;
   const allData = props.allData;
   useEffect(() => {
-    if (allData && allData.length > 0) {
+    if (allData.length === 0) {
+      setCurrentDetailIndex(-1);
+      setDetailData(null);
+      setSavePreEditData(null);
+    } else {
       setCurrentDetailIndex(0);
       setSavePreEditData(JSON.parse(JSON.stringify(allData[0])));
       setDetailData(JSON.parse(JSON.stringify(allData[0])));
-    } else {
-      setCurrentDetailIndex(-1);
-      setSavePreEditData(null);
-      setDetailData(null);
     }
   }, [allData]);
 
-  let findIndex = -1;
-  for (let i = 0; i < allData.length; i++) {
-    const account = allData[i];
-    const name = account.name;
-    if (name === accountName) {
-      findIndex = i;
-      break;
-    }
-  }
-
   const [savePreEditData, setSavePreEditData] = useState(null);
   const [detailData, setDetailData] = useState(null);
-  const [currentDetailIndex, setCurrentDetailIndex] = useState(findIndex);
+  const [currentDetailIndex, setCurrentDetailIndex] = useState(-1);
   useEffect(() => {
     if (currentDetailIndex >= 0) {
       setSavePreEditData(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
       setDetailData(JSON.parse(JSON.stringify(allData[currentDetailIndex])));
+    } else {
+      setDetailData(null);
+      setSavePreEditData(null);
     }
   }, [currentDetailIndex]);
 
@@ -69,39 +60,16 @@ function Content(props) {
     setEdit(false);
     setDetailData(savePreEditData);
   }
-  function onSaved() {
-    const msg = detailData.name + " saved";
-    props.onSaved(msg);
-  }
-  function onSaveFailed() {
-    const msg = detailData.name + " save failed";
-    props.onSaveFailed(msg);
-  }
-  async function saveChanges(detailData) {
-    props.showSpinners();
-    const saveResult = await BackgroundTask.saveEditDetail(detailData);
-    if (saveResult) {
-      setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
-      setDetailData(detailData);
-      allData[currentDetailIndex] = detailData;
-      props.setAllData(JSON.parse(JSON.stringify(allData)));
-      setEdit(false);
-      onSaved();
-    } else {
-      onSaveFailed();
-    }
-    props.dismissSpinners();
-    return saveResult;
+  function saveChanges(detailData) {
+    setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
+    setDetailData(detailData);
+    allData[currentDetailIndex] = detailData;
+    props.setAllData(JSON.parse(JSON.stringify(allData)));
+    setEdit(false);
   }
 
   function deleteAccount(targetIndex) {
-    const newAllData = allData.filter((item, j) => {
-      return j !== targetIndex
-    });
-    props.setAllData(newAllData);
-    setCurrentDetailIndex(-1);
-    setSavePreEditData(null);
-    setDetailData(null);
+    props.deleteAccount(targetIndex);
   }
   function addAccount() {
     if (isEdit) {
@@ -266,7 +234,6 @@ function App() {
   }, [accountData]);
 
   const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
-
   function setAllData(data) {
     let newDict = {};
     data.map(account => {
@@ -285,6 +252,13 @@ function App() {
       newArray.push(newDict[id]);
     }
 
+    setAccountData(newArray);
+  }
+  function deleteAccount(account) {
+    console.log(account);
+    const newArray = accountData.filter((item) => {
+      return item.id !== account.id;
+    });
     setAccountData(newArray);
   }
 
@@ -350,41 +324,18 @@ function App() {
           <Header
             onSearchTextChanged={onSearchTextChanged}
           />
-          <Route exact path="/account"
+          <Route path="/"
             render={
               (props) => {
                 return (
                   <Content
                     {...props}
                     allData={showAccountData}
+                    deleteAccount={deleteAccount}
                     setAllData={setAllData}
                     showWaringToast={showWaringToast}
                     deleteModalAction={deleteModalAction}
                     showDeleteModal={showDeleteModal}
-                    onSaved={onContentSaved}
-                    onSaveFailed={onContentSaveFailed}
-                    showSpinners={showSpinners}
-                    dismissSpinners={dismissSpinners}
-                    saveToastMsg={saveToastMsg}
-                  />
-                )
-              }
-            }
-          />
-          <Route path="/account/:accountName"
-            render={
-              (props) => {
-                return (
-                  <Content
-                    {...props}
-                    allData={showAccountData}
-                    setAllData={setAllData}
-                    showWaringToast={showWaringToast}
-                    deleteModalAction={deleteModalAction}
-                    showDeleteModal={showDeleteModal}
-                    onSaved={onContentSaved}
-                    onSaveFailed={onContentSaveFailed}
-                    showSpinners={showSpinners}
                     dismissSpinners={dismissSpinners}
                     saveToastMsg={saveToastMsg}
                   />
