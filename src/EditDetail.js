@@ -154,9 +154,10 @@ function DetailFooter(props) {
     )
 }
 
-function EditDetail(props) {
+const EditDetail = React.memo((props) => {
     const [detailData, setDetailData] = useState(JSON.parse(JSON.stringify(props.detailData)));
     let detail;
+    console.log(props.detailData);
 
     function onInputNameChange(value) {
         detailData.name = value;
@@ -256,6 +257,10 @@ function EditDetail(props) {
             {detail}
         </div>
     )
-}
+}, (prevProps, nextProps) => {
+    let checkResult = (prevProps.detailData !== null && nextProps.detailData !== null)
+        && (prevProps.detailData.id === nextProps.detailData.id);
+    return checkResult;
+});
 
 export default EditDetail;

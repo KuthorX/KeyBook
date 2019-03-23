@@ -80,7 +80,7 @@ function DetailHeader(props) {
 
 function DetailTag(props) {
     return (
-        <Link to={"/tags/" + props.value} class="text-decoration-none mx-1">{props.value}</Link>
+        <span class="text-decoration-none mx-1">{props.value}</span>
     )
 }
 
@@ -114,7 +114,8 @@ function DetailFooter(props) {
     )
 }
 
-function Detail(props) {
+// Performance Optimizations
+const Detail = React.memo((props) => {
     const detailData = props.detailData;
 
     let detail;
@@ -148,6 +149,10 @@ function Detail(props) {
             {detail}
         </div>
     )
-}
+}, (prevProps, nextProps) => {
+    let checkResult = (prevProps.detailData !== null && nextProps.detailData !== null)
+        && (prevProps.detailData.id === nextProps.detailData.id);
+    return checkResult;
+});
 
 export default Detail;

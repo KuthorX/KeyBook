@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 
 function SearchArea(props) {
-  const [searchText, setSeacrhText] = useState("");
-
+  const searchText = props.searchText;
+  
   function onSearchTextChanged(e) {
     let value = e.target.value;
-    setSeacrhText(value);
     props.onSearchTextChanged(value);
   }
 
@@ -34,6 +33,7 @@ function Header(props) {
         </div>
         <div class="col-sm-6 order-3 order-sm-2 my-auto">
           <SearchArea
+            searchText={props.searchText}
             onSearchTextChanged={props.onSearchTextChanged}
           />
         </div>

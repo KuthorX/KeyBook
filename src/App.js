@@ -31,15 +31,26 @@ require('bootstrap');
 
 function Content(props) {
   const allData = props.allData;
+  const showAccountId = props.showAccountId;
+
   useEffect(() => {
     if (allData.length === 0) {
       setCurrentDetailIndex(-1);
       setDetailData(null);
       setSavePreEditData(null);
     } else {
-      setCurrentDetailIndex(0);
-      setSavePreEditData(JSON.parse(JSON.stringify(allData[0])));
-      setDetailData(JSON.parse(JSON.stringify(allData[0])));
+      let finalIndex = 0;
+      if (showAccountId !== null) {
+        for (let i = 0; i < allData.length; i++) {
+          if (showAccountId === allData[i].id) {
+            finalIndex = i;
+            break;
+          }
+        }
+      }
+      setCurrentDetailIndex(finalIndex);
+      setSavePreEditData(JSON.parse(JSON.stringify(allData[finalIndex])));
+      setDetailData(JSON.parse(JSON.stringify(allData[finalIndex])));
     }
   }, [allData]);
 
@@ -61,52 +72,21 @@ function Content(props) {
     setDetailData(savePreEditData);
   }
   function saveChanges(detailData) {
-    setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
+    setEdit(false);
     setDetailData(detailData);
+    setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
     allData[currentDetailIndex] = detailData;
     props.setAllData(JSON.parse(JSON.stringify(allData)));
-    setEdit(false);
   }
 
-  function deleteAccount(targetIndex) {
-    props.deleteAccount(targetIndex);
-  }
   function addAccount() {
     if (isEdit) {
       props.showWaringToast("Your current account is editing, please save or cancel editing status! ");
       return;
     }
-    let newAllData = [{
-      "id": Math.random(),
-      "name": "NewAccount",
-      "tags": [],
-      "detailList": [{
-        "id": Math.random(),
-        "label": "",
-        "value": "",
-      }]
-    }, ...allData];
-    props.setAllData(newAllData);
-    setCurrentDetailIndex(0);
-    setSavePreEditData(JSON.parse(JSON.stringify(newAllData[0])));
-    setDetailData(JSON.parse(JSON.stringify(newAllData[0])));
+    props.addAccount();
     setEdit(true);
   }
-
-  const deleteModalAction = props.deleteModalAction;
-  useEffect(() => {
-    switch (deleteModalAction.what) {
-      case "waiting":
-        break;
-      case "continue":
-        break;
-      case "delete":
-        deleteAccount(deleteModalAction.targetIndex);
-        break;
-      default:
-        throw Error("deleteModalAction.what is illegal");
-    }
-  }, [deleteModalAction]);
 
   function onAccountAddClick() {
     addAccount();
@@ -181,7 +161,7 @@ function App() {
   const saveToastId = "saveToastId";
   const [saveToastMsg, setSaveToastMsg] = useState({ "succeed": false, "msg": "" });
   const deleteModalId = "deleteModal";
-  const [deleteModalAction, setDeleteModalAction] = useState({ "what": "waiting", "targetIndex": -1 });
+  const [deleteModalAction, setDeleteModalAction] = useState({ "targetIndex": -1 });
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
 
   let recieveData = [
@@ -234,6 +214,7 @@ function App() {
   }, [accountData]);
 
   const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
+  const [showAccountId, setShownAccountId] = useState(null);
   function setAllData(data) {
     let newDict = {};
     data.map(account => {
@@ -251,41 +232,46 @@ function App() {
     for (let id in newDict) {
       newArray.push(newDict[id]);
     }
-
     setAccountData(newArray);
   }
-  function deleteAccount(account) {
-    console.log(account);
-    const newArray = accountData.filter((item) => {
-      return item.id !== account.id;
-    });
-    setAccountData(newArray);
-  }
-
   function showWaringToast(msg) {
     let newToastMsg = { "msg": msg };
     setWarningToastMsg(newToastMsg);
     $(`#${warningToastId}`).toast({ "delay": 3000 }).toast('show');
   }
 
+  function addAccount() {
+    let newAccountId = Math.random();
+    let newAllData = [{
+      "id": newAccountId,
+      "name": "NewAccount",
+      "tags": [],
+      "detailList": [{
+        "id": Math.random(),
+        "label": "",
+        "value": "",
+      }]
+    }, ...accountData];
+    setSeacrhText("");
+    setAllData(newAllData);
+    setShownAccountId(newAccountId);
+  }
+
   function showDeleteModal(targetIndex) {
     const newAction = {};
-    newAction.what = "waiting";
     newAction.targetIndex = targetIndex;
     setDeleteModalAction(newAction);
     $(`#${deleteModalId}`).modal('show');
   }
-
   function onDeleteModalNoClick() {
-    const newAction = JSON.parse(JSON.stringify(deleteModalAction));
-    newAction.what = "continue";
-    setDeleteModalAction(newAction);
   }
-
   function onDeleteModalYesClick() {
-    const newAction = JSON.parse(JSON.stringify(deleteModalAction));
-    newAction.what = "delete";
-    setDeleteModalAction(newAction);
+    let deleteIndex = deleteModalAction.targetIndex;
+    let deleteItem = showAccountData[deleteIndex];
+    const newAllArray = accountData.filter((item) => {
+      return item.id !== deleteItem.id;
+    });
+    setAccountData(newAllArray);
   }
 
   function onContentSaved(msg) {
@@ -322,6 +308,7 @@ function App() {
       <ErrorBoundary>
         <div className="App">
           <Header
+            searchText={searchText}
             onSearchTextChanged={onSearchTextChanged}
           />
           <Route path="/"
@@ -330,14 +317,12 @@ function App() {
                 return (
                   <Content
                     {...props}
+                    showAccountId={showAccountId}
                     allData={showAccountData}
-                    deleteAccount={deleteAccount}
                     setAllData={setAllData}
                     showWaringToast={showWaringToast}
-                    deleteModalAction={deleteModalAction}
                     showDeleteModal={showDeleteModal}
-                    dismissSpinners={dismissSpinners}
-                    saveToastMsg={saveToastMsg}
+                    addAccount={addAccount}
                   />
                 )
               }
