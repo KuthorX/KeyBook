@@ -10,21 +10,27 @@ function PwListItem(props) {
         props.onItemClick(name, index);
     }
 
+    function onItemMouseEnter() {
+        props.onItemClick(name, index);
+    }
+
+    function onItemFocus() {
+        props.onItemClick(name, index);
+    }
+
     let item;
     if (index === activeIndex) {
         item =
             <div class="text-break">
-                <Link to={`/account/${name}`} class="list-group-item list-group-item-action active"
-                    onClick={onItemClick}>
+                <Link to={`/account/${name}`} class="list-group-item list-group-item-action active">
                     {name}
                 </Link>
             </div>
             ;
     } else {
         item =
-            <div class="text-break">
-            <Link to={`/account/${name}`} class="list-group-item list-group-item-action"
-                    onClick={onItemClick}>
+            <div class="text-break" onMouseEnter={onItemMouseEnter} onFocus={onItemFocus} onClick={onItemClick}>
+                <Link to={`/account/${name}`} class="list-group-item list-group-item-action">
                     {name}
                 </Link>
             </div>
@@ -51,6 +57,7 @@ function AsideHead(props) {
 }
 
 function Aside(props) {
+    const data = props.data;
 
     const activeIndex = props.activeIndex;
 
@@ -62,7 +69,7 @@ function Aside(props) {
         props.onPwItemClick(name, index);
     }
 
-    const pwListItems = props.data.map((pwListItem, index) =>
+    const pwListItems = data.map((pwListItem, index) =>
         <PwListItem
             key={pwListItem.id}
             activeIndex={activeIndex}

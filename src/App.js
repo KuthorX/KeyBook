@@ -4,6 +4,7 @@ import Header from './Header';
 import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
+import Search, { SearchByText } from './Search';
 import WarningToast from './toast/WarningToast';
 import DeleteModal from './DeleteModal';
 import SaveToast from './toast/SaveToast';
@@ -30,67 +31,18 @@ require('bootstrap');
 
 function Content(props) {
 
-  console.log(props);
   const accountName = props.match.params.accountName;
-
-  var recieveData = [
-    {
-      "name": "MyAccount-1",
-      "tags": ["a", "b"],
-      "detailList": [{
-        "label": "UserName",
-        "value": "Sora",
-      },
-      {
-        "label": "Password",
-        "value": "Okay",
-      }]
-    },
-    {
-      "name": "MyAccount-2",
-      "tags": ["a", "c"],
-      "detailList": [{
-        "label": "UserName",
-        "value": "Ghost",
-      },
-      {
-        "label": "Password",
-        "value": "Fine",
-      },
-      {
-        "label": "Password 2",
-        "value": "Fined",
-      }]
-    }
-  ]
-
-  const [tags, setTags] = useState({});
-  const [allData, setAllData] = useState(recieveData.map(data => {
-    return {
-      "id": Math.random(),
-      "name": data.name,
-      "tags": data.tags,
-      "detailList": data.detailList.map(detail => {
-        return {
-          "id": Math.random(),
-          "label": detail.label,
-          "value": detail.value,
-        }
-      })
-    }
-  }));
+  const allData = props.allData;
   useEffect(() => {
-    let newTags = {};
-    allData.map(data => {
-      let tags = data.tags;
-      tags.map(tag => {
-        if (!newTags[tag]) {
-          newTags[tag] = [];
-        }
-        newTags[tag].push(data);
-      });
-    });
-    setTags(newTags);
+    if (allData && allData.length > 0) {
+      setCurrentDetailIndex(0);
+      setSavePreEditData(JSON.parse(JSON.stringify(allData[0])));
+      setDetailData(JSON.parse(JSON.stringify(allData[0])));
+    } else {
+      setCurrentDetailIndex(-1);
+      setSavePreEditData(null);
+      setDetailData(null);
+    }
   }, [allData]);
 
   let findIndex = -1;
@@ -132,7 +84,7 @@ function Content(props) {
       setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
       setDetailData(detailData);
       allData[currentDetailIndex] = detailData;
-      setAllData(JSON.parse(JSON.stringify(allData)));
+      props.setAllData(JSON.parse(JSON.stringify(allData)));
       setEdit(false);
       onSaved();
     } else {
@@ -146,7 +98,7 @@ function Content(props) {
     const newAllData = allData.filter((item, j) => {
       return j !== targetIndex
     });
-    setAllData(newAllData);
+    props.setAllData(newAllData);
     setCurrentDetailIndex(-1);
     setSavePreEditData(null);
     setDetailData(null);
@@ -166,7 +118,7 @@ function Content(props) {
         "value": "",
       }]
     }, ...allData];
-    setAllData(newAllData);
+    props.setAllData(newAllData);
     setCurrentDetailIndex(0);
     setSavePreEditData(JSON.parse(JSON.stringify(newAllData[0])));
     setDetailData(JSON.parse(JSON.stringify(newAllData[0])));
@@ -264,6 +216,78 @@ function App() {
   const [deleteModalAction, setDeleteModalAction] = useState({ "what": "waiting", "targetIndex": -1 });
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
 
+  let recieveData = [
+    {
+      "name": "MyAccount-1",
+      "tags": ["a", "b"],
+      "detailList": [{
+        "label": "UserName",
+        "value": "Sora",
+      },
+      {
+        "label": "Password",
+        "value": "Okay",
+      }]
+    },
+    {
+      "name": "MyAccount-2",
+      "tags": ["a", "c"],
+      "detailList": [{
+        "label": "UserName",
+        "value": "Ghost",
+      },
+      {
+        "label": "Password",
+        "value": "Fine",
+      },
+      {
+        "label": "Password 2",
+        "value": "Fined",
+      }]
+    }
+  ]
+
+  const [accountData, setAccountData] = useState(recieveData.map(data => {
+    return {
+      "id": Math.random(),
+      "name": data.name,
+      "tags": data.tags,
+      "detailList": data.detailList.map(detail => {
+        return {
+          "id": Math.random(),
+          "label": detail.label,
+          "value": detail.value,
+        }
+      })
+    }
+  }));
+  useEffect(() => {
+    setShowAccountData(SearchByText(searchText, accountData));
+  }, [accountData]);
+
+  const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
+
+  function setAllData(data) {
+    let newDict = {};
+    data.map(account => {
+      if (!newDict[account.id]) {
+        newDict[account.id] = account;
+      }
+    });
+    accountData.map(account => {
+      if (!newDict[account.id]) {
+        newDict[account.id] = account;
+      }
+    });
+
+    let newArray = [];
+    for (let id in newDict) {
+      newArray.push(newDict[id]);
+    }
+
+    setAccountData(newArray);
+  }
+
   function showWaringToast(msg) {
     let newToastMsg = { "msg": msg };
     setWarningToastMsg(newToastMsg);
@@ -310,69 +334,118 @@ function App() {
     setIfSpinnersShow(false);
   }
 
+  const [searchText, setSeacrhText] = useState("");
+  function onSearchTextChanged(value) {
+    setSeacrhText(value);
+  }
+  useEffect(() => {
+    let newAccounts = SearchByText(searchText, accountData);
+    setShowAccountData(newAccounts);
+  }, [searchText]);
+
   return (
     <Router>
-      <div className="App">
-        <Header />
-        <Route exact path="/account"
-          render={
-            (props) => {
-              return (
-                <Content
-                  {...props}
-                  showWaringToast={showWaringToast}
-                  deleteModalAction={deleteModalAction}
-                  showDeleteModal={showDeleteModal}
-                  onSaved={onContentSaved}
-                  onSaveFailed={onContentSaveFailed}
-                  showSpinners={showSpinners}
-                  dismissSpinners={dismissSpinners}
-                  saveToastMsg={saveToastMsg}
-                />
-              )
+      <ErrorBoundary>
+        <div className="App">
+          <Header
+            onSearchTextChanged={onSearchTextChanged}
+          />
+          <Route exact path="/account"
+            render={
+              (props) => {
+                return (
+                  <Content
+                    {...props}
+                    allData={showAccountData}
+                    setAllData={setAllData}
+                    showWaringToast={showWaringToast}
+                    deleteModalAction={deleteModalAction}
+                    showDeleteModal={showDeleteModal}
+                    onSaved={onContentSaved}
+                    onSaveFailed={onContentSaveFailed}
+                    showSpinners={showSpinners}
+                    dismissSpinners={dismissSpinners}
+                    saveToastMsg={saveToastMsg}
+                  />
+                )
+              }
             }
-          }
-        />
-        <Route path="/account/:accountName"
-          render={
-            (props) => {
-              return (
-                <Content
-                  {...props}
-                  showWaringToast={showWaringToast}
-                  deleteModalAction={deleteModalAction}
-                  showDeleteModal={showDeleteModal}
-                  onSaved={onContentSaved}
-                  onSaveFailed={onContentSaveFailed}
-                  showSpinners={showSpinners}
-                  dismissSpinners={dismissSpinners}
-                  saveToastMsg={saveToastMsg}
-                />
-              )
+          />
+          <Route path="/account/:accountName"
+            render={
+              (props) => {
+                return (
+                  <Content
+                    {...props}
+                    allData={showAccountData}
+                    setAllData={setAllData}
+                    showWaringToast={showWaringToast}
+                    deleteModalAction={deleteModalAction}
+                    showDeleteModal={showDeleteModal}
+                    onSaved={onContentSaved}
+                    onSaveFailed={onContentSaveFailed}
+                    showSpinners={showSpinners}
+                    dismissSpinners={dismissSpinners}
+                    saveToastMsg={saveToastMsg}
+                  />
+                )
+              }
             }
-          }
-        />
-        <DeleteModal
-          modalId={deleteModalId}
-          onNoClick={onDeleteModalNoClick}
-          onYesClick={onDeleteModalYesClick}
-        />
-        <SaveToast
-          toastId={saveToastId}
-          ifSucceed={saveToastMsg.succeed}
-          msg={saveToastMsg.msg}
-        />
-        <WarningToast
-          toastId={warningToastId}
-          msg={warningToastMsg.msg}
-        />
-        <Spinners
-          ifShow={ifSpinnersShow}
-        />
-      </div>
+          />
+          <DeleteModal
+            modalId={deleteModalId}
+            onNoClick={onDeleteModalNoClick}
+            onYesClick={onDeleteModalYesClick}
+          />
+          <SaveToast
+            toastId={saveToastId}
+            ifSucceed={saveToastMsg.succeed}
+            msg={saveToastMsg.msg}
+          />
+          <WarningToast
+            toastId={warningToastId}
+            msg={warningToastMsg.msg}
+          />
+          <Spinners
+            ifShow={ifSpinnersShow}
+          />
+        </div>
+      </ErrorBoundary>
     </Router>
   )
 }
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null, errorInfo: null };
+  }
 
+  componentDidCatch(error, errorInfo) {
+    // Catch errors in any components below and re-render with error message
+    this.setState({
+      error: error,
+      errorInfo: errorInfo
+    })
+    // You can also log error messages to an error reporting service here
+  }
+
+  render() {
+    if (this.state.errorInfo) {
+      // Error path
+      return (
+        <div>
+          <h2>Something went wrong.</h2>
+          <details style={{ whiteSpace: 'pre-wrap' }}>
+            {this.state.error && this.state.error.toString()}
+            <br />
+            {this.state.errorInfo.componentStack}
+          </details>
+        </div>
+      );
+    }
+    // Normally, just render children
+    return this.props.children;
+  }
+}
 
 export default App;

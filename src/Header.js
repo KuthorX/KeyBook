@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 
-function SearchArea() {
+function SearchArea(props) {
   const [searchText, setSeacrhText] = useState("");
 
   function onSearchTextChanged(e) {
-    setSeacrhText(e.target.value);
+    let value = e.target.value;
+    setSeacrhText(value);
+    props.onSearchTextChanged(value);
   }
 
   return (
@@ -20,7 +22,7 @@ function SearchArea() {
   )
 }
 
-function Header() {
+function Header(props) {
   return (
     <div class="container-fluid py-1 border-bottom">
       <div class="row">
@@ -31,7 +33,9 @@ function Header() {
           <span class="text-primary">Menu</span>
         </div>
         <div class="col-sm-6 order-3 order-sm-2 my-auto">
-          <SearchArea />
+          <SearchArea
+            onSearchTextChanged={props.onSearchTextChanged}
+          />
         </div>
       </div>
     </div>
