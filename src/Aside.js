@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 function PwListItem(props) {
     const name = props.name;
@@ -10,25 +10,32 @@ function PwListItem(props) {
         props.onItemClick(name, index);
     }
 
-    function onItemMouseEnter(event) {
-        props.onItemClick(name, index);
+    function onItemMouseEnter() {
+        // props.onItemClick(name, index);
     }
 
     function onItemFocus() {
-        props.onItemClick(name, index);
+        // props.onItemClick(name, index);
+    }
+
+    function onKeyDown(event) {
+        console.log(event.key);
+        if (event.key === 'Enter' || event.key === ' ') {
+            props.onItemClick(name, index);
+        }
     }
 
     let item;
     if (index === activeIndex) {
         item =
-            <div class="text-break list-group-item list-group-item-action active">
+            <div class="text-break list-group-item list-group-item-action active"  tabIndex="0">
                 {name}
             </div>
             ;
     } else {
         item =
-            <div class="text-break list-group-item list-group-item-action"
-                onMouseOver={onItemMouseEnter} onFocus={onItemFocus} onClick={onItemClick}>
+            <div class="text-break list-group-item list-group-item-action" tabIndex="0"
+                onMouseOver={onItemMouseEnter} onFocus={onItemFocus} onClick={onItemClick} onKeyDown={onKeyDown}>
                 {name}
             </div>
     }

@@ -21,13 +21,15 @@ require('bootstrap');
 // - 账户 list 编辑：添加、删除
 // - Router
 // - tag 功能：展示、编辑
+// - 搜索功能：account、tags
 // TODO: 待添加功能/bug need to fixed
 // - 云存储功能
+// - 小屏适配
 // - 随机生成密码工具（max：128-256）
-// - 搜索功能：account、tags
-// - 目录功能
+// - 密码锁
 // - 关联文件功能
 // - 中文语言支持
+// - 目录功能
 
 function Content(props) {
   const allData = props.allData;
@@ -70,6 +72,8 @@ function Content(props) {
   function discardChanges() {
     setEdit(false);
     setDetailData(savePreEditData);
+    allData[currentDetailIndex] = savePreEditData;
+    props.setAllData(JSON.parse(JSON.stringify(allData)));
   }
   function saveChanges(detailData) {
     setEdit(false);
