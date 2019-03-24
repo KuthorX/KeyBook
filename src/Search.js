@@ -3,6 +3,7 @@ export function SearchByText(text, allAccounts) {
     const allData = allAccounts;
     allData.map(data => {
         let tempTags = data.tags;
+        tempTags = tempTags.split(" ");
         tempTags.map(tag => {
             if (!tags[tag]) {
                 tags[tag] = [];

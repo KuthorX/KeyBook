@@ -54,14 +54,14 @@ function DetailList(props) {
 
     return (
         <div className="container-fluid">
-            <div class="row py-1 border-top">
-                <div class="col-2 my-auto text-secondary font-weight-bold p-0">
+            <div class="row py-1 border-top text-secondary font-weight-bold">
+                <div class="col-2 my-auto p-0">
                     label
                 </div>
-                <div class="col my-auto text-secondary font-weight-bold">
+                <div class="col my-auto">
                     value
                 </div>
-                <div class="col-4 my-auto text-secondary font-weight-bold p-0">
+                <div class="col-4 my-auto p-0">
                     operation
                 </div>
             </div>
@@ -78,21 +78,11 @@ function DetailHeader(props) {
     )
 }
 
-function DetailTag(props) {
-    return (
-        <span class="text-decoration-none mx-1">{props.value}</span>
-    )
-}
-
 function DetailTags(props) {
     const tags = props.tags;
-    const detailTags = tags.map((tag) =>
-        <DetailTag key={tag.id}
-            value={tag} />
-    )
     return (
         <div>
-            <p class="my-auto py-2 text-secondary">Tags <span> {detailTags} </span></p>
+            <p class="my-auto py-2 text-secondary"> <span class="text-secondary font-weight-bold">Tags</span> {tags}</p>
         </div>
     )
 }

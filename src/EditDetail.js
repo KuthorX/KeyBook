@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 require('bootstrap');
 
 function EditDetailItem(props) {
 
-    const [label, setLabel] = useState(props.label);
-    const [value, setValue] = useState(props.value);
+    const label = props.label;
+    const value = props.value;
 
     function onLabelChange(event) {
         let value = event.target.value;
-        setLabel(value);
         props.onLabelChange(value, props.index);
     }
 
     function onValueChange(event) {
         let value = event.target.value;
-        setValue(value);
         props.onValueChange(value, props.index);
     }
 
-    function onDeleteClick(event) {
+    function onDeleteClick() {
         props.onDeleteClick(props.index);
     }
 
@@ -100,11 +98,10 @@ function EditDetailList(props) {
 }
 
 function EditDetailHeader(props) {
-    const [name, setName] = useState(props.name);
+    const name = props.name;
 
     function onNameChange(event) {
         let value = event.target.value;
-        setName(value);
         props.onNameChange(value);
     }
 
@@ -117,21 +114,15 @@ function EditDetailHeader(props) {
 
 function EditDetailTags(props) {
     const tags = props.tags;
-    let tempStr = "";
-    for (let i = 0; i < tags.length; i++) {
-        tempStr += tags[i] + ";";
-    }
-    const [tagStr, setTagStr] = useState(tempStr);
 
-    function onTagChange(event) {
+    function onTagsChange(event) {
         let value = event.target.value;
-        setTagStr(value);
-        props.onTagChange(value);
+        props.onTagsChange(value);
     }
 
     return (
         <div class="my-2">
-            <input type="text" aria-label="Label" value={tagStr} onChange={onTagChange} class="form-control" />
+            <input type="text" aria-label="Label" value={tags} onChange={onTagsChange} class="form-control" />
         </div>
     )
 }
@@ -154,66 +145,32 @@ function DetailFooter(props) {
     )
 }
 
-const EditDetail = React.memo((props) => {
-    const [detailData, setDetailData] = useState(JSON.parse(JSON.stringify(props.detailData)));
+function EditDetail(props) {
+    const detailData = props.detailData;
     let detail;
-    console.log(props.detailData);
 
-    function onInputNameChange(value) {
-        detailData.name = value;
+    function onItemNameChange(value) {
+        props.onItemNameChange(value);
     }
 
-    function onInputTagChange(value) {
-        let newSet = new Set();
-        let newArray = [];
-        let tags = value.split(";")
-        for (let i = 0; i < tags.length; i++) {
-            let temp = tags[i];
-            if (temp !== "") {
-                newSet.add(temp);
-            }
-        }
-        newSet.forEach(item => {
-            newArray.push(item);
-        });
-        detailData.tags = newArray;
+    function onItemInputTagsChange(value) {
+        props.onItemInputTagsChange(value);
     }
 
     function onItemInputLabelChange(value, index) {
-        detailData.detailList[index].label = value;
+        props.onItemInputLabelChange(value, index);
     }
 
     function onItemInputValueChange(value, index) {
-        detailData.detailList[index].value = value;
+        props.onItemInputValueChange(value, index);
     }
 
     function onAddClick() {
-        const newDetailList = [...detailData.detailList, {
-            "id": Math.random(),
-            "label": "",
-            "value": "",
-        }];
-        const newName = detailData.name;
-        const newDetailData = {
-            "name": newName,
-            "id": detailData.id,
-            "tags": detailData.tags,
-            "detailList": newDetailList
-        }
-        setDetailData(newDetailData);
+        props.onItemAddClick();
     }
 
     function onItemDeleteClick(index) {
-        const newDetailList = detailData.detailList.filter((item, j) => {
-            return j !== index
-        });
-        const newName = detailData.name;
-        const newDetailData = {
-            "name": newName,
-            "tags": detailData.tags,
-            "detailList": newDetailList
-        }
-        setDetailData(newDetailData);
+        props.onItemDeleteClick(index);
     }
 
     function onOkClick() {
@@ -228,11 +185,11 @@ const EditDetail = React.memo((props) => {
         detail = <div>
             <EditDetailHeader
                 name={detailData.name}
-                onNameChange={onInputNameChange}
+                onNameChange={onItemNameChange}
             />
             <EditDetailTags
                 tags={detailData.tags}
-                onTagChange={onInputTagChange}
+                onTagsChange={onItemInputTagsChange}
             />
             <EditDetailList
                 detailList={detailData.detailList}
@@ -257,10 +214,6 @@ const EditDetail = React.memo((props) => {
             {detail}
         </div>
     )
-}, (prevProps, nextProps) => {
-    let checkResult = (prevProps.detailData !== null && nextProps.detailData !== null)
-        && (prevProps.detailData.id === nextProps.detailData.id);
-    return checkResult;
-});
+};
 
 export default EditDetail;

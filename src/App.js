@@ -102,6 +102,31 @@ function Content(props) {
     setCurrentDetailIndex(index);
   }
 
+  function onItemAddClick() {
+    const newDetailList = [...detailData.detailList, {
+      "id": Math.random(),
+      "label": "",
+      "value": "",
+    }];
+    const newDetailData = {
+      "name": detailData.name,
+      "id": detailData.id,
+      "tags": detailData.tags,
+      "detailList": newDetailList
+    }
+    setDetailData(newDetailData);
+  }
+  function onItemDeleteClick(index) {
+    const newDetailList = detailData.detailList.filter((item, j) => {
+      return j !== index
+    });
+    const newDetailData = {
+      "name": detailData.name,
+      "tags": detailData.tags,
+      "detailList": newDetailList
+    }
+    setDetailData(newDetailData);
+  }
   function onEDOkClick(detailData) {
     saveChanges(detailData);
   }
@@ -114,6 +139,22 @@ function Content(props) {
   function onDetailDeleteClick() {
     props.showDeleteModal(currentDetailIndex);
   }
+  function onItemInputLabelChange(value, index) {
+    detailData.detailList[index].label = value;
+    setDetailData(JSON.parse(JSON.stringify(detailData)));
+  }
+  function onItemInputValueChange(value, index) {
+    detailData.detailList[index].value = value;
+    setDetailData(JSON.parse(JSON.stringify(detailData)));
+  }
+  function onItemInputTagsChange(value) {
+    detailData.tags = value;
+    setDetailData(JSON.parse(JSON.stringify(detailData)));
+  }
+  function onItemNameChange(value) {
+    detailData.name = value;
+    setDetailData(JSON.parse(JSON.stringify(detailData)));
+  }
 
   const [isEdit, setEdit] = useState(false);
   let detail;
@@ -123,6 +164,12 @@ function Content(props) {
         detailData={detailData}
         onOkClick={onEDOkClick}
         onCancelClick={onEDCancelClick}
+        onItemAddClick={onItemAddClick}
+        onItemDeleteClick={onItemDeleteClick}
+        onItemNameChange={onItemNameChange}
+        onItemInputLabelChange={onItemInputLabelChange}
+        onItemInputValueChange={onItemInputValueChange}
+        onItemInputTagsChange={onItemInputTagsChange}
       />;
   } else {
     detail =
@@ -167,7 +214,7 @@ function App() {
   let recieveData = [
     {
       "name": "MyAccount-1",
-      "tags": ["a", "b"],
+      "tags": "a b",
       "detailList": [{
         "label": "UserName",
         "value": "Sora",
@@ -179,7 +226,7 @@ function App() {
     },
     {
       "name": "MyAccount-2",
-      "tags": ["a", "c"],
+      "tags": "a c",
       "detailList": [{
         "label": "UserName",
         "value": "Ghost",
@@ -245,7 +292,7 @@ function App() {
     let newAllData = [{
       "id": newAccountId,
       "name": "NewAccount",
-      "tags": [],
+      "tags": "",
       "detailList": [{
         "id": Math.random(),
         "label": "",
