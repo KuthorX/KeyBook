@@ -54,7 +54,7 @@ function AsideHead(props) {
     }
 
     return (
-        <div class="text-break w-100 mb-1">
+        <div class="text-break w-100 my-1">
             <button type="button" class="btn-sm btn-light w-100" onClick={onAddClick}>Add Account</button>
         </div>
     )

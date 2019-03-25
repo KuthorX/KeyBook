@@ -2,7 +2,6 @@ function fallbackCopyTextToClipboard(text) {
     var textArea = document.createElement("textarea");
     textArea.value = text;
     document.body.appendChild(textArea);
-    textArea.focus();
     textArea.select();
 
     var successful = false;

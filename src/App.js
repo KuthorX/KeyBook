@@ -4,12 +4,10 @@ import Header from './Header';
 import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
-import Search, { SearchByText } from './Search';
+import { SearchByText } from './Search';
 import WarningToast from './toast/WarningToast';
 import DeleteModal from './DeleteModal';
-import SaveToast from './toast/SaveToast';
 import Spinners from './Spinners';
-import * as BackgroundTask from './BackgroundTask';
 import $ from 'jquery';
 import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 import { all } from 'q';
@@ -52,6 +50,10 @@ function Content(props) {
         }
       }
       setCurrentDetailIndex(finalIndex);
+      if (finalIndex >= 0) {
+        setSavePreEditData(JSON.parse(JSON.stringify(allData[finalIndex])));
+        setDetailData(JSON.parse(JSON.stringify(allData[finalIndex])));
+      }
     }
   }, [allData]);
 
@@ -69,17 +71,17 @@ function Content(props) {
   }, [currentDetailIndex]);
 
   function discardChanges() {
-    setEdit(false);
-    setDetailData(savePreEditData);
-    allData[currentDetailIndex] = savePreEditData;
+    props.setEdit(false);
+    setDetailData(JSON.parse(JSON.stringify(savePreEditData)));
+    allData[currentDetailIndex] = JSON.parse(JSON.stringify(savePreEditData));
     props.setShowAccountId(savePreEditData.id);
     props.setAllData(JSON.parse(JSON.stringify(allData)));
   }
   function saveChanges(detailData) {
-    setEdit(false);
-    setDetailData(detailData);
+    props.setEdit(false);
     setSavePreEditData(JSON.parse(JSON.stringify(detailData)));
-    allData[currentDetailIndex] = detailData;
+    allData[currentDetailIndex] = JSON.parse(JSON.stringify(detailData));
+    props.setShowAccountId(detailData.id);
     props.setAllData(JSON.parse(JSON.stringify(allData)));
   }
 
@@ -89,7 +91,7 @@ function Content(props) {
       return;
     }
     props.addAccount();
-    setEdit(true);
+    props.setEdit(true);
   }
 
   function onAccountAddClick() {
@@ -143,7 +145,7 @@ function Content(props) {
     discardChanges();
   }
   function onDetailEditClick() {
-    setEdit(true);
+    props.setEdit(true);
   }
   function onDetailDeleteClick() {
     props.showDeleteModal(currentDetailIndex);
@@ -165,7 +167,7 @@ function Content(props) {
     setDetailData(JSON.parse(JSON.stringify(detailData)));
   }
 
-  const [isEdit, setEdit] = useState(false);
+  const isEdit = props.isEdit
   let detail;
   if (isEdit) {
     detail =
@@ -272,6 +274,10 @@ function App() {
     }
   ]
 
+  recieveData = [...recieveData, ...recieveData]
+  recieveData = [...recieveData, ...recieveData]
+  recieveData = [...recieveData, ...recieveData]
+
   const [accountData, setAccountData] = useState(recieveData.map(data => {
     return {
       "id": Math.random(),
@@ -292,6 +298,7 @@ function App() {
 
   const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
   const [showAccountId, setShowAccountId] = useState(null);
+  const [isEdit, setEdit] = useState(false);
   // account: 显示列表
   // detail: 显示详情
   const [showOption, setShowOption] = useState("account");
@@ -374,6 +381,11 @@ function App() {
 
   const [searchText, setSeacrhText] = useState("");
   function onSearchTextChanged(value) {
+    if (isEdit) {
+      showWaringToast("Your current account is editing, please save or cancel editing status! ");
+      return;
+    }
+    setShowAccountId(null);
     setSeacrhText(value);
   }
   useEffect(() => {
@@ -396,6 +408,8 @@ function App() {
                 return (
                   <Content
                     {...props}
+                    isEdit={isEdit}
+                    setEdit={setEdit}
                     showAccountId={showAccountId}
                     allData={showAccountData}
                     setAllData={setAllData}
@@ -414,11 +428,6 @@ function App() {
             modalId={deleteModalId}
             onNoClick={onDeleteModalNoClick}
             onYesClick={onDeleteModalYesClick}
-          />
-          <SaveToast
-            toastId={saveToastId}
-            ifSucceed={saveToastMsg.succeed}
-            msg={saveToastMsg.msg}
           />
           <WarningToast
             toastId={warningToastId}
