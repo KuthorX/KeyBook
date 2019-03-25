@@ -72,13 +72,13 @@ function EditDetailList(props) {
         <div className="container-fluid">
             <div class="row py-1 border-top">
                 <div class="col-2 my-auto text-secondary font-weight-bold p-0">
-                    label
+                    Label
                 </div>
                 <div class="col my-auto text-secondary font-weight-bold">
-                    value
+                    Value
                 </div>
                 <div class="col-4 my-auto text-secondary font-weight-bold p-0">
-                    operation
+                    Operation
                 </div>
             </div>
             {DetailItems}
@@ -106,7 +106,10 @@ function EditDetailHeader(props) {
     }
 
     return (
-        <div class="my-2 pb-2 border-bottom">
+        <div class="input-group my-2 pb-2 border-bottom">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Name</span>
+            </div>
             <input type="text" aria-label="Label" value={name} onChange={onNameChange} class="form-control" />
         </div>
     )
@@ -121,7 +124,10 @@ function EditDetailTags(props) {
     }
 
     return (
-        <div class="my-2">
+        <div class="input-group my-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Tags</span>
+            </div>
             <input type="text" aria-label="Label" value={tags} onChange={onTagsChange} class="form-control" />
         </div>
     )

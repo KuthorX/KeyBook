@@ -56,13 +56,13 @@ function DetailList(props) {
         <div className="container-fluid">
             <div class="row py-1 border-top text-secondary font-weight-bold">
                 <div class="col-2 my-auto p-0">
-                    label
+                    Label
                 </div>
                 <div class="col my-auto">
-                    value
+                    Value
                 </div>
                 <div class="col-4 my-auto p-0">
-                    operation
+                    Operation
                 </div>
             </div>
             {DetailItems}
@@ -73,6 +73,8 @@ function DetailList(props) {
 function DetailHeader(props) {
     return (
         <div>
+            <button type="button" class="btn btn-link d-flex d-sm-none float-right text-decoration-none"
+                onClick={props.onBackClick}>Back</button>
             <h5 class="my-auto py-2 text-secondary font-italic border-bottom">{props.name}</h5>
         </div>
     )
@@ -118,9 +120,13 @@ const Detail = React.memo((props) => {
         props.onDeleteClick();
     }
 
+    function onBackClick() {
+        props.onBackClick();
+    }
+
     if (detailData) {
         detail = <div>
-            <DetailHeader name={detailData.name} />
+            <DetailHeader name={detailData.name} onBackClick={onBackClick} />
             <DetailTags tags={detailData.tags} />
             <DetailList data={detailData.detailList} />
             <DetailFooter

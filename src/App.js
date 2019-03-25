@@ -34,6 +34,7 @@ require('bootstrap');
 function Content(props) {
   const allData = props.allData;
   const showAccountId = props.showAccountId;
+  const showOption = props.showOption;
 
   useEffect(() => {
     if (allData.length === 0) {
@@ -73,6 +74,7 @@ function Content(props) {
     setEdit(false);
     setDetailData(savePreEditData);
     allData[currentDetailIndex] = savePreEditData;
+    props.setShowAccountId(savePreEditData.id);
     props.setAllData(JSON.parse(JSON.stringify(allData)));
   }
   function saveChanges(detailData) {
@@ -104,6 +106,10 @@ function Content(props) {
       return;
     }
     setCurrentDetailIndex(index);
+    props.setShowOption("detail");
+  }
+  function onBackClick() {
+    props.setShowOption("account");
   }
 
   function onItemAddClick() {
@@ -181,26 +187,47 @@ function Content(props) {
         detailData={detailData}
         onEditClick={onDetailEditClick}
         onDeleteClick={onDetailDeleteClick}
+        onBackClick={onBackClick}
       />;
+  }
+
+  let finalShow;
+  if (showOption === "account") {
+    finalShow = <div class="row">
+      <div class="col-sm-3 border-right">
+        <Aside
+          {...props}
+          data={allData}
+          onPwItemClick={onPwItemClick}
+          activeIndex={currentDetailIndex}
+          onAccountAddClick={onAccountAddClick}
+        />
+      </div>
+      <div class="col-sm d-none d-sm-block">
+        {detail}
+      </div>
+    </div>
+  } else if (showOption === "detail") {
+    finalShow = <div class="row">
+      <div class="col-sm-3 d-none d-sm-block border-right">
+        <Aside
+          {...props}
+          data={allData}
+          onPwItemClick={onPwItemClick}
+          activeIndex={currentDetailIndex}
+          onAccountAddClick={onAccountAddClick}
+        />
+      </div>
+      <div class="col-sm d-sm-block">
+        {detail}
+      </div>
+    </div>
   }
 
   return (
     <Router>
       <div class="container-fluid pw-content py-1 border-bottom">
-        <div class="row">
-          <div class="col-sm-3 border-right">
-            <Aside
-              {...props}
-              data={allData}
-              onPwItemClick={onPwItemClick}
-              activeIndex={currentDetailIndex}
-              onAccountAddClick={onAccountAddClick}
-            />
-          </div>
-          <div class="col-sm d-none d-sm-block">
-            {detail}
-          </div>
-        </div>
+        {finalShow}
       </div>
     </Router>
   )
@@ -265,7 +292,10 @@ function App() {
   }, [accountData]);
 
   const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
-  const [showAccountId, setShownAccountId] = useState(null);
+  const [showAccountId, setShowAccountId] = useState(null);
+  // account: 显示列表
+  // detail: 显示详情
+  const [showOption, setShowOption] = useState("account");
   function setAllData(data) {
     let newDict = {};
     data.map(account => {
@@ -295,17 +325,14 @@ function App() {
     let newAccountId = Math.random();
     let newAllData = [{
       "id": newAccountId,
-      "name": "NewAccount",
+      "name": "",
       "tags": "",
-      "detailList": [{
-        "id": Math.random(),
-        "label": "",
-        "value": "",
-      }]
+      "detailList": []
     }, ...accountData];
     setSeacrhText("");
     setAllData(newAllData);
-    setShownAccountId(newAccountId);
+    setShowAccountId(newAccountId);
+    setShowOption("detail");
   }
 
   function showDeleteModal(targetIndex) {
@@ -350,6 +377,7 @@ function App() {
     setSeacrhText(value);
   }
   useEffect(() => {
+    setShowOption("account");
     let newAccounts = SearchByText(searchText, accountData);
     setShowAccountData(newAccounts);
   }, [searchText]);
@@ -371,9 +399,12 @@ function App() {
                     showAccountId={showAccountId}
                     allData={showAccountData}
                     setAllData={setAllData}
+                    setShowAccountId={setShowAccountId}
                     showWaringToast={showWaringToast}
                     showDeleteModal={showDeleteModal}
                     addAccount={addAccount}
+                    showOption={showOption}
+                    setShowOption={setShowOption}
                   />
                 )
               }
