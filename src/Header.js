@@ -25,10 +25,10 @@ function Header(props) {
   return (
     <div class="container-fluid py-2 border-bottom">
       <div class="row h-100">
-        <div class="col-sm order-1 order-sm-1 my-auto text-center text-sm-left">
+        <div class="col-sm order-1 order-sm-1 mt-1 mb-2 my-sm-auto text-center text-sm-left">
           <span class="text-primary">Password Manager</span>
         </div>
-        <div class="col-sm order-2 order-sm-3 my-auto text-center text-sm-right">
+        <div class="col-sm order-2 order-sm-3 mb-2 my-sm-auto text-center text-sm-right">
           <span class="text-primary">Menu</span>
         </div>
         <div class="col-sm-6 order-3 order-sm-2 mt-sm-auto mt-1">

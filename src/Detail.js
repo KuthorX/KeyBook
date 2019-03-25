@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { copyTextToClipboard } from './Tools';
 require('bootstrap');
 
@@ -7,7 +7,36 @@ function DetailItem(props) {
     const value = props.value;
 
     function onCopyClick() {
-        copyTextToClipboard(value);
+        let result = copyTextToClipboard(value);
+        if (result) {
+            setCopyStatus("success");
+        } else {
+            setCopyStatus("fail")
+        }
+        setTimeout(() => {
+            setCopyStatus("normal")
+        }, 500);
+    }
+
+    const [copyStatus, setCopyStatus] = useState("normal");
+    let copyButton;
+
+    switch (copyStatus) {
+        case "normal":
+            copyButton =
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100" onClick={onCopyClick}>Copy</button>;
+            break;
+        case "success":
+
+            copyButton =
+                <button type="button" class="btn btn-success btn-sm w-100" onClick={onCopyClick}>Copy</button>;
+            break;
+        case "fail":
+            copyButton =
+                <button type="button" class="btn btn-danger btn-sm w-100" onClick={onCopyClick}>Copy</button>;
+            break;
+        default:
+            break;
     }
 
     return (
@@ -19,7 +48,7 @@ function DetailItem(props) {
                 {value}
             </div>
             <div class="col-4 my-auto p-0">
-                <button type="button" class="btn btn-outline-secondary btn-sm w-100" onClick={onCopyClick}>Copy</button>
+                {copyButton}
             </div>
         </div>
     )
@@ -92,8 +121,7 @@ function DetailFooter(props) {
     )
 }
 
-// Performance Optimizations
-const Detail = React.memo((props) => {
+function Detail(props) {
     const detailData = props.detailData;
 
     let detail;
@@ -131,10 +159,6 @@ const Detail = React.memo((props) => {
             {detail}
         </div>
     )
-}, (prevProps, nextProps) => {
-    let checkResult = (prevProps.detailData !== null && nextProps.detailData !== null)
-        && (prevProps.detailData.id === nextProps.detailData.id);
-    return checkResult;
-});
+};
 
 export default Detail;
