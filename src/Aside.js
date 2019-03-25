@@ -28,7 +28,8 @@ function PwListItem(props) {
     let item;
     if (index === activeIndex) {
         item =
-            <div class="text-break list-group-item list-group-item-action active"  tabIndex="0">
+            <div class="text-break list-group-item list-group-item-action active" tabIndex="0"
+                onClick={onItemClick} onKeyDown={onKeyDown}>
                 {name}
             </div>
             ;

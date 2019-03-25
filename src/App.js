@@ -22,9 +22,9 @@ require('bootstrap');
 // - Router
 // - tag 功能：展示、编辑
 // - 搜索功能：account、tags
+// - 小屏适配
 // TODO: 待添加功能/bug need to fixed
 // - 云存储功能
-// - 小屏适配
 // - 随机生成密码工具（max：128-256）
 // - 密码锁
 // - 关联文件功能
@@ -42,7 +42,7 @@ function Content(props) {
       setDetailData(null);
       setSavePreEditData(null);
     } else {
-      let finalIndex = 0;
+      let finalIndex = -1;
       if (showAccountId !== null) {
         for (let i = 0; i < allData.length; i++) {
           if (showAccountId === allData[i].id) {
@@ -52,8 +52,6 @@ function Content(props) {
         }
       }
       setCurrentDetailIndex(finalIndex);
-      setSavePreEditData(JSON.parse(JSON.stringify(allData[finalIndex])));
-      setDetailData(JSON.parse(JSON.stringify(allData[finalIndex])));
     }
   }, [allData]);
 
@@ -99,6 +97,7 @@ function Content(props) {
   }
   function onPwItemClick(name, index) {
     if (index === currentDetailIndex) {
+      props.setShowOption("detail");
       return;
     }
     if (isEdit) {
@@ -226,7 +225,7 @@ function Content(props) {
 
   return (
     <Router>
-      <div class="container-fluid pw-content py-1 border-bottom">
+      <div class="container-fluid pw-content border-bottom">
         {finalShow}
       </div>
     </Router>
@@ -325,7 +324,7 @@ function App() {
     let newAccountId = Math.random();
     let newAllData = [{
       "id": newAccountId,
-      "name": "",
+      "name": "New Account",
       "tags": "",
       "detailList": []
     }, ...accountData];
@@ -350,6 +349,7 @@ function App() {
       return item.id !== deleteItem.id;
     });
     setAccountData(newAllArray);
+    setShowOption("account");
   }
 
   function onContentSaved(msg) {

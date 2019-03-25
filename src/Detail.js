@@ -72,10 +72,13 @@ function DetailList(props) {
 
 function DetailHeader(props) {
     return (
-        <div>
-            <button type="button" class="btn btn-link d-flex d-sm-none float-right text-decoration-none"
+        <div class="my-auto py-2 border-bottom overflow-auto d-flex align-items-center">
+            <h5 class="my-0 text-secondary font-italic"
+            >{props.name}</h5>
+            <button type="button"
+                class="btn btn-link d-sm-none float-right text-decoration-none position-absolute"
+                style={{ "right": "2px" }}
                 onClick={props.onBackClick}>Back</button>
-            <h5 class="my-auto py-2 text-secondary font-italic border-bottom">{props.name}</h5>
         </div>
     )
 }
