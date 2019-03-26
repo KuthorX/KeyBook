@@ -234,6 +234,14 @@ function Content(props) {
   )
 }
 
+function Footer() {
+  return (
+    <div>
+
+    </div>
+  )
+}
+
 function App() {
   const warningToastId = "warningToastId";
   const [warningToastMsg, setWarningToastMsg] = useState({ "msg": "" });
@@ -395,50 +403,44 @@ function App() {
   }, [searchText]);
 
   return (
-    <Router>
-      <ErrorBoundary>
-        <div className="App">
-          <Header
-            searchText={searchText}
-            onSearchTextChanged={onSearchTextChanged}
-          />
-          <Route path="/"
-            render={
-              (props) => {
-                return (
-                  <Content
-                    {...props}
-                    isEdit={isEdit}
-                    setEdit={setEdit}
-                    showAccountId={showAccountId}
-                    allData={showAccountData}
-                    setAllData={setAllData}
-                    setShowAccountId={setShowAccountId}
-                    showWaringToast={showWaringToast}
-                    showDeleteModal={showDeleteModal}
-                    addAccount={addAccount}
-                    showOption={showOption}
-                    setShowOption={setShowOption}
-                  />
-                )
-              }
-            }
-          />
-          <DeleteModal
-            modalId={deleteModalId}
-            onNoClick={onDeleteModalNoClick}
-            onYesClick={onDeleteModalYesClick}
-          />
-          <WarningToast
-            toastId={warningToastId}
-            msg={warningToastMsg.msg}
-          />
-          <Spinners
-            ifShow={ifSpinnersShow}
-          />
-        </div>
-      </ErrorBoundary>
-    </Router>
+    <div className="App">
+      <header>
+        <Header
+          searchText={searchText}
+          onSearchTextChanged={onSearchTextChanged}
+        />
+      </header>
+      <main>
+        <Content
+          isEdit={isEdit}
+          setEdit={setEdit}
+          showAccountId={showAccountId}
+          allData={showAccountData}
+          setAllData={setAllData}
+          setShowAccountId={setShowAccountId}
+          showWaringToast={showWaringToast}
+          showDeleteModal={showDeleteModal}
+          addAccount={addAccount}
+          showOption={showOption}
+          setShowOption={setShowOption}
+        />
+      </main>
+      <footer>
+        <p>Footer</p>
+      </footer>
+      <DeleteModal
+        modalId={deleteModalId}
+        onNoClick={onDeleteModalNoClick}
+        onYesClick={onDeleteModalYesClick}
+      />
+      <WarningToast
+        toastId={warningToastId}
+        msg={warningToastMsg.msg}
+      />
+      <Spinners
+        ifShow={ifSpinnersShow}
+      />
+    </div>
   )
 }
 class ErrorBoundary extends React.Component {

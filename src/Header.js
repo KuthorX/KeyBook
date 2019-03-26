@@ -23,7 +23,7 @@ function SearchArea(props) {
 
 function Header(props) {
   return (
-    <div class="container-fluid py-2 border-bottom sticky-top bg-white">
+    <div class="container-fluid py-2 border-bottom bg-white">
       <div class="row h-100">
         <div class="col-sm order-1 order-sm-1 mt-1 mb-2 my-sm-auto text-center text-sm-left">
           <span class="text-primary">Password Manager</span>
