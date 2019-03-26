@@ -1,3 +1,13 @@
+import CryptoJS from 'crypto-js';
+
+export function encrypt(plainText, key) {
+    return CryptoJS.AES.encrypt(plainText, key).toString();
+}
+
+export function decrypt(ciphertext, key) {
+    return CryptoJS.AES.decrypt(ciphertext, key).toString(CryptoJS.enc.Utf8);
+}
+
 function fallbackCopyTextToClipboard(text) {
     var textArea = document.createElement("textarea");
     textArea.value = text;

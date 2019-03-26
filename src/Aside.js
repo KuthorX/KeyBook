@@ -19,7 +19,6 @@ function PwListItem(props) {
     }
 
     function onKeyDown(event) {
-        console.log(event.key);
         if (event.key === 'Enter' || event.key === ' ') {
             props.onItemClick(name, index);
         }
