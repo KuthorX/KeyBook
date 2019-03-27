@@ -11,7 +11,7 @@ function Footer() {
       </div>
       <div class="py-2 border-top">
         <button class="btn btn-link text-decoration-none" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-          Button with data-target
+          Password Generate
         </button>
       </div>
     </div>
