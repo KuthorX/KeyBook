@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Header from './Header';
+import Footer from './Footer';
 import Aside from './Aside';
 import Detail from './Detail';
 import EditDetail from './EditDetail';
@@ -234,14 +235,6 @@ function Content(props) {
   )
 }
 
-function Footer() {
-  return (
-    <div>
-
-    </div>
-  )
-}
-
 function App() {
   const warningToastId = "warningToastId";
   const [warningToastMsg, setWarningToastMsg] = useState({ "msg": "" });
@@ -426,7 +419,7 @@ function App() {
         />
       </main>
       <footer>
-        <p>Footer</p>
+        <Footer />
       </footer>
       <DeleteModal
         modalId={deleteModalId}
