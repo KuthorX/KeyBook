@@ -1,19 +1,13 @@
 import CryptoJS from 'crypto-js';
 
-export function generateSHA512(plainText, length) {
-    const key = CryptoJS.SHA512(Math.random()).toString();
-    let result = "";
-    let remainLength = length;
-    while (remainLength > 0) {
-        const ciphertext = CryptoJS.HmacSHA512(plainText, key).toString();
-        if (remainLength > 128) {
-            result += ciphertext;
-        } else {
-            result += ciphertext.substring(0, remainLength);
-        }
-        remainLength -= 128;
-    }
-    return result;
+export function generatePassword(length) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < length; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
 }
 
 export function encrypt(plainText, key) {
