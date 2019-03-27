@@ -11,7 +11,6 @@ import DeleteModal from './DeleteModal';
 import Spinners from './Spinners';
 import $ from 'jquery';
 import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
-import { all } from 'q';
 require('bootstrap');
 
 // DONE: 已添加功能

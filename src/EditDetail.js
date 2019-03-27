@@ -1,5 +1,4 @@
 import React from 'react';
-require('bootstrap');
 
 function EditDetailItem(props) {
 

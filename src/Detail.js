@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { copyTextToClipboard } from './Tools';
-require('bootstrap');
 
 function DetailItem(props) {
     const label = props.label;
