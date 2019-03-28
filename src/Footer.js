@@ -101,9 +101,13 @@ function Footer() {
           genResult={genResult}
           setPwLen={setPwLen}
         />
-        <button class="btn btn-link text-decoration-none" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-          Password Generate
-        </button>
+        <div class="mx-4 my-2 d-flex flex-row-reverse">
+          <div>
+            <a class="text-info text-decoration-none" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+              Password Generate
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )
