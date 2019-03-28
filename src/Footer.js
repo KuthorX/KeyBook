@@ -1,27 +1,79 @@
 import React, { useState, useEffect } from 'react';
 // https://github.com/whoisandy/react-rangeslider
-import Slider from 'react-rangeslider'
-import './rangeslider/css/rangeslider.css'
+import Slider from 'react-rangeslider';
+import { generatePassword } from './Tools';
+import './rangeslider/css/rangeslider.css';
+import { copyTextToClipboard } from './Tools';
 
 function GeneratePasswordView(props) {
   const pwLen = props.pwLen;
+  const genResult = props.genResult;
 
   function onVChange(value) {
     props.setPwLen(value);
   }
 
+  function onLabelChange(event) {
+    let value = event.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      if (value > 1024) {
+        value = 1024;
+      }
+      props.setPwLen(value);
+    }
+  }
+
+  const [copyStatus, setCopyStatus] = useState("normal");
+  let copyButton;
+  switch (copyStatus) {
+    case "normal":
+      copyButton =
+        <button type="button" class="btn btn-outline-info text-center text-break w-100" onClick={onCopyClick}>
+          {genResult}</button>;
+      break;
+    case "success":
+      copyButton =
+        <button type="button" class="btn btn-success text-center text-break w-100" onClick={onCopyClick}>
+          {genResult}</button>;
+      break;
+    case "fail":
+      copyButton =
+        <button type="button" class="btn btn-danger text-center text-break w-100" onClick={onCopyClick}>
+          {genResult}</button>;
+      break;
+    default:
+      break;
+  }
+  function onCopyClick() {
+    let result = copyTextToClipboard(genResult);
+    if (result) {
+      setCopyStatus("success");
+    } else {
+      setCopyStatus("fail")
+    }
+    setTimeout(() => {
+      setCopyStatus("normal")
+    }, 500);
+  }
+
   return (
-    <div class="collapse" id="collapseExample">
-      <div class="card-body">
+    <div class="collapse show" id="collapseExample">
+      <div class="mx-4 mt-2">
         <div>
-          <Slider class=""
+          <Slider
             value={pwLen}
-            min={1}
+            min={0}
             max={1024}
             orientation="horizontal"
             onChange={onVChange}
           />
-          {pwLen}
+          <div class="input-group mt-3 mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="basic-addon1">Len</span>
+            </div>
+            <input class="vw-10" type="text" aria-label="Label" value={pwLen} onChange={onLabelChange} class="form-control" />
+          </div>
+          {copyButton}
         </div>
       </div>
     </div>
@@ -31,12 +83,22 @@ function GeneratePasswordView(props) {
 function Footer() {
 
   const [pwLen, setPwLen] = useState(16);
+  const [genResult, setGenResult] = useState("GenerateResult");
+  useEffect(() => {
+    if (pwLen > 0) {
+      setGenResult(generatePassword(pwLen));
+    } else {
+      setGenResult("GenerateResult");
+    }
+  }, [pwLen])
+
 
   return (
     <div class="">
       <div class="py-2 border-top">
         <GeneratePasswordView
           pwLen={pwLen}
+          genResult={genResult}
           setPwLen={setPwLen}
         />
         <button class="btn btn-link text-decoration-none" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
