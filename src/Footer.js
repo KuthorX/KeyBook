@@ -23,22 +23,29 @@ function GeneratePasswordView(props) {
     }
   }
 
+  function reGenPassword() {
+    props.reGenPassword();
+  }
+
   const [copyStatus, setCopyStatus] = useState("normal");
   let copyButton;
   switch (copyStatus) {
     case "normal":
       copyButton =
-        <button type="button" class="btn btn-outline-info text-center text-break w-100" onClick={onCopyClick}>
+        <button type="button" class="btn btn-outline-info text-center text-break w-100" onClick={onCopyClick}
+          style={{ "font-size": "0.5rem" }}>
           {genResult}</button>;
       break;
     case "success":
       copyButton =
-        <button type="button" class="btn btn-success text-center text-break w-100" onClick={onCopyClick}>
+        <button type="button" class="btn btn-success text-center text-break w-100" onClick={onCopyClick}
+          style={{ "font-size": "0.5rem" }}>
           {genResult}</button>;
       break;
     case "fail":
       copyButton =
-        <button type="button" class="btn btn-danger text-center text-break w-100" onClick={onCopyClick}>
+        <button type="button" class="btn btn-danger text-center text-break w-100" onClick={onCopyClick}
+          style={{ "font-size": "0.5rem" }}>
           {genResult}</button>;
       break;
     default:
@@ -60,18 +67,30 @@ function GeneratePasswordView(props) {
     <div class="collapse show" id="collapseExample">
       <div class="mx-4 mt-2">
         <div>
-          <Slider
-            value={pwLen}
-            min={0}
-            max={1024}
-            orientation="horizontal"
-            onChange={onVChange}
-          />
+          <div class="container-fluid m-0 p-0">
+            <div class="row m-0 p-0 align-items-center">
+              <div class="col-11 m-0 pr-1 pl-0">
+                <Slider
+                  value={pwLen}
+                  min={0}
+                  max={1024}
+                  orientation="horizontal"
+                  onChange={onVChange}
+                />
+              </div>
+              <div class="col-1 m-0 pr-0 pl-1">
+                <button type="button" class="btn btn-outline-info w-100 btn-sm" onClick={reGenPassword}>
+                  R
+              </button>
+              </div>
+            </div>
+          </div>
           <div class="input-group mt-3 mb-2">
             <div class="input-group-prepend">
               <span class="input-group-text" id="basic-addon1">Len</span>
             </div>
-            <input class="vw-10" type="text" aria-label="Label" value={pwLen} onChange={onLabelChange} class="form-control" />
+            <input class="form-control" type="text" aria-label="Label" value={pwLen}
+              onChange={onLabelChange} />
           </div>
           {copyButton}
         </div>
@@ -92,6 +111,10 @@ function Footer() {
     }
   }, [pwLen])
 
+  function reGenPassword() {
+    setGenResult(generatePassword(pwLen));
+  }
+
 
   return (
     <div class="">
@@ -100,6 +123,7 @@ function Footer() {
           pwLen={pwLen}
           genResult={genResult}
           setPwLen={setPwLen}
+          reGenPassword={reGenPassword}
         />
         <div class="mx-4 my-2 d-flex flex-row-reverse">
           <div>
