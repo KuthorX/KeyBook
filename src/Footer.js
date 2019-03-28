@@ -11,7 +11,7 @@ function GeneratePasswordView(props) {
   }
 
   return (
-    <div class="collapse border-top" id="collapseExample">
+    <div class="collapse" id="collapseExample">
       <div class="card-body">
         <div>
           <Slider class=""
@@ -21,6 +21,7 @@ function GeneratePasswordView(props) {
             orientation="horizontal"
             onChange={onVChange}
           />
+          {pwLen}
         </div>
       </div>
     </div>
@@ -33,11 +34,11 @@ function Footer() {
 
   return (
     <div class="">
-      <GeneratePasswordView
-        pwLen={pwLen}
-        setPwLen={setPwLen}
-      />
       <div class="py-2 border-top">
+        <GeneratePasswordView
+          pwLen={pwLen}
+          setPwLen={setPwLen}
+        />
         <button class="btn btn-link text-decoration-none" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
           Password Generate
         </button>
