@@ -8,11 +8,13 @@ import WarningToast from './toast/WarningToast';
 import DeleteModal from './modal/DeleteModal';
 import CloseModal from './modal/CloseModal';
 import SetKeyModal from './modal/SetKeyModal';
+import KeyBookModal from './modal/KeyBookModal';
 import Spinners from './Spinners';
 import $ from 'jquery';
 import OpenFilePage from './OpenFilePage';
 import { encrypt, decrypt, md5, getCurrentUTC, loadLocalFile } from "./Tools";
 import { saveAs } from 'file-saver';
+import { openAuthPage, openFileFromDropBox } from './save/DropBoxTools';
 require('bootstrap');
 
 // DONE: 已添加功能
@@ -26,11 +28,9 @@ require('bootstrap');
 // - 随机生成密码工具
 // - 密码锁(本地存储)
 // TODO: 待添加功能/bug need to fixed
-// - 云存储功能：Google Drive
 // - 云存储功能：DropBox
-// - 关联文件功能
 // - 中文语言支持
-// - 目录功能
+// - Electron
 
 function App() {
   const warningToastId = "warningToastId";
@@ -42,6 +42,11 @@ function App() {
   const closeModalId = "closeModal";
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
   const setKetModalId = "setKeyModal";
+  const keyBookModalId = "keyBookModal";
+
+  function onKeyBookClick() {
+    $(`#${keyBookModalId}`).modal('show');
+  }
 
   const [fileData, setFileData] = useState(null);
   const [ifFileOpen, setFileOpen] = useState(false);
@@ -50,7 +55,6 @@ function App() {
     if (content) {
       setFileData(JSON.parse(content));
       setEncryptData(JSON.parse(content)["data"]);
-      setFileOpen(true);
     }
   }
   function onOpenFileErrorCb(error) {
@@ -87,6 +91,28 @@ function App() {
   }
   function onPwCancelClick() {
     setEncryptData(null);
+  }
+
+  function onOpenDropBoxFileClick() {
+    let hashStrings = window.location.hash.substring(1);
+    let hashArgs = {}
+    let items = hashStrings.length > 0 ? hashStrings.split("&") : [];
+    let i = 0
+    let len = items.length;
+    for (i = 0; i < len; i++) {
+      let item = items[i].split("=");
+      let name = decodeURIComponent(item[0]);
+      let value = decodeURIComponent(item[1]);
+      if (name.length > 0) {
+        hashArgs[name] = value;
+      }
+    }
+    if (!hashArgs["access_token"]) {
+      openAuthPage();
+    } else {
+      console.log(hashArgs["access_token"]);
+      openFileFromDropBox();
+    }
   }
 
   const [accountData, setAccountData] = useState(null);
@@ -169,6 +195,7 @@ function App() {
   }
   function onCloseModalYesClick() {
     setLock(true);
+    setFileOpen(false);
   }
 
   const [userKeyRaw, setUserKeyRaw] = useState("");
@@ -261,6 +288,7 @@ function App() {
     page = <>
       <header>
         <Header
+          onKeyBookClick={onKeyBookClick}
           searchText={searchText}
           onSearchTextChanged={onSearchTextChanged}
           onSetKeyClick={onSetKeyClick}
@@ -294,6 +322,7 @@ function App() {
       <OpenFilePage
         onNewFileClick={onNewFileClick}
         onOpenFileClick={onOpenFileClick}
+        onOpenDropBoxFileClick={onOpenDropBoxFileClick}
         ifFileOpen={ifFileOpen}
         fileName={fileName}
         inputPw={inputPw}
@@ -307,6 +336,9 @@ function App() {
   return (
     <div className="App">
       {page}
+      <KeyBookModal
+        modalId={keyBookModalId}
+      />
       <DeleteModal
         modalId={deleteModalId}
         onNoClick={onDeleteModalNoClick}

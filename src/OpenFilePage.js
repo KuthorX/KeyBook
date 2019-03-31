@@ -48,7 +48,11 @@ function OpenFilePage(props) {
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3 text-center"
                                 onClick={onOpenFileClick}>
-                                Open File
+                                Open Local File
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3 text-center"
+                                onClick={onOpenDropBoxFileClick}>
+                                Open Dropbox File
                             </button>
                         </div>
                     </div>
@@ -96,6 +100,10 @@ function OpenFilePage(props) {
 
     function onNewFileClick() {
         props.onNewFileClick();
+    }
+
+    function onOpenDropBoxFileClick() {
+        props.onOpenDropBoxFileClick();
     }
 
     return (

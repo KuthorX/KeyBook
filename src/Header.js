@@ -22,6 +22,10 @@ function SearchArea(props) {
 }
 
 function Header(props) {
+  function onKeyBookClick() {
+    props.onKeyBookClick();
+  }
+
   function onSetKeyClick() {
     props.onSetKeyClick();
   }
@@ -42,7 +46,9 @@ function Header(props) {
     <div class="container-fluid py-2 border-bottom bg-white">
       <div class="row h-100">
         <div class="col-6 col-sm order-1 order-sm-1 my-auto text-center text-sm-left">
-          <span class="text-primary">KeyBook</span>
+          <button class="btn btn-link text-decoration-none" type="button" onClick={onKeyBookClick}>
+            KeyBook
+          </button>
         </div>
         <div class="col-6 col-sm order-2 order-sm-3 my-auto text-center text-sm-right">
           <button class="btn btn-link dropdown-toggle text-decoration-none" type="button"
