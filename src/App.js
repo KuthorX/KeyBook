@@ -5,8 +5,9 @@ import Footer from './Footer';
 import Content from './Content';
 import { SearchByText } from './Search';
 import WarningToast from './toast/WarningToast';
-import DeleteModal from './DeleteModal';
-import CloseModal from './CloseModal';
+import DeleteModal from './modal/DeleteModal';
+import CloseModal from './modal/CloseModal';
+import SetKeyModal from './modal/SetKeyModal';
 import Spinners from './Spinners';
 import $ from 'jquery';
 import OpenFilePage from './OpenFilePage';
@@ -40,27 +41,40 @@ function App() {
   const [deleteModalAction, setDeleteModalAction] = useState({ "targetIndex": -1 });
   const closeModalId = "closeModal";
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
+  const setKetModalId = "setKeyModal";
 
+  const [fileData, setFileData] = useState(null);
+  const [ifFileOpen, setFileOpen] = useState(false);
   const [encryptData, setEncryptData] = useState(null);
-  function onOpenFileClickCb(content) {
+  function onOpenFileOkCb(content) {
     if (content) {
-      setEncryptData(JSON.parse(content));
-
+      setFileData(JSON.parse(content));
+      setEncryptData(JSON.parse(content)["data"]);
+      setFileOpen(true);
     }
   }
   function onOpenFileErrorCb(error) {
     console.log(error);
   }
+  function onNewFileClick() {
+    setAccountData([]);
+    setShowAccountData([]);
+    setUserKeyMd5(md5(""));
+    setLock(false);
+  }
   function onOpenFileClick() {
-    loadLocalFile(onOpenFileClickCb, onOpenFileErrorCb);
+    loadLocalFile(onOpenFileOkCb, onOpenFileErrorCb);
   }
   function onPwOkClick() {
-    let fileMd5 = encryptData["md5"];
+    let fileMd5 = fileData["md5"];
     let inputMd5 = md5(inputPw);
     if (fileMd5 === inputMd5) {
-      setAccountData(JSON.parse(decrypt(encryptData["data"], inputPw)));
+      setAccountData(JSON.parse(decrypt(fileData["data"], inputPw)));
+      setShowAccountData(JSON.parse(decrypt(fileData["data"], inputPw)));
+      setUserKeyMd5(decrypt(fileData["md5"], inputPw));
       setInputPw("");
       setLock(false);
+      setFileOpen(false);
     } else {
       var animationEvent = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
       $("#inputPw").addClass('shake-horizontal');
@@ -75,63 +89,12 @@ function App() {
     setEncryptData(null);
   }
 
-  let recieveData = [
-    {
-      "dateCreate": new Date().toISOString(),
-      "dateModify": new Date().toISOString(),
-      "name": "MyAccount-1",
-      "tags": "a b",
-      "detailList": [{
-        "label": "UserName",
-        "value": "Sora",
-      },
-      {
-        "label": "Password",
-        "value": "Okay",
-      }]
-    },
-    {
-      "dateCreate": new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
-      "dateModify": new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
-      "name": "MyAccount-2",
-      "tags": "a c",
-      "detailList": [{
-        "label": "UserName",
-        "value": "Ghost",
-      },
-      {
-        "label": "Password",
-        "value": "Fine",
-      },
-      {
-        "label": "Password 2",
-        "value": "Fined",
-      }]
-    }
-  ]
-
-  recieveData = [...recieveData, ...recieveData]
-  recieveData = [...recieveData, ...recieveData]
-  recieveData = [...recieveData, ...recieveData]
-
-  const [accountData, setAccountData] = useState(recieveData.map(data => {
-    return {
-      "id": Math.random(),
-      "name": data.name,
-      "tags": data.tags,
-      "dateCreate": data.dateCreate,
-      "dateModify": data.dateModify,
-      "detailList": data.detailList.map(detail => {
-        return {
-          "id": Math.random(),
-          "label": detail.label,
-          "value": detail.value,
-        }
-      })
-    }
-  }));
+  const [accountData, setAccountData] = useState(null);
   useEffect(() => {
-    setShowAccountData(SearchByText(searchText, accountData));
+    if (accountData) {
+      setShowAccountData(SearchByText(searchText, accountData));
+      setEncryptData(encrypt(JSON.stringify(accountData), userKeyRaw));
+    }
   }, [accountData]);
 
   const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
@@ -199,9 +162,7 @@ function App() {
     setShowOption("account");
   }
 
-  function showCloseModal(targetIndex) {
-    const newAction = {};
-    newAction.targetIndex = targetIndex;
+  function showCloseModal() {
     $(`#${closeModalId}`).modal('show');
   }
   function onCloseModalNoClick() {
@@ -210,13 +171,33 @@ function App() {
     setLock(true);
   }
 
+  const [userKeyRaw, setUserKeyRaw] = useState("");
+  const [userKeyMd5, setUserKeyMd5] = useState("");
+  function onSetKeyClick() {
+    $(`#${setKetModalId}`).modal('show');
+  }
+  function onSetKeyModalCancelClick() {
+
+  }
+  function onSetKeyModalConfirmClick() {
+    setUserKeyMd5(md5(userKeyRaw));
+    let newEncryptData = {
+      "md5": md5(userKeyRaw),
+      "data": encrypt(JSON.stringify(accountData), userKeyRaw),
+      "date": getCurrentUTC(),
+    }
+    setEncryptData(encrypt(JSON.stringify(accountData), userKeyRaw));
+    setFileData(newEncryptData);
+  }
+  function onUserKeyChange(value) {
+    setUserKeyRaw(value);
+  }
+
   function onSaveLocalClick() {
-    let userKey = "123";
-    let userMd5 = md5(userKey);
-    let encrptyData = encrypt(JSON.stringify(accountData), userKey);
+    let userMd5 = userKeyMd5;
     let saveData = {
       "md5": userMd5,
-      "data": encrptyData,
+      "data": encryptData,
       "date": getCurrentUTC(),
     }
     let text = JSON.stringify(saveData);
@@ -263,8 +244,10 @@ function App() {
   }
   useEffect(() => {
     setShowOption("account");
-    let newAccounts = SearchByText(searchText, accountData);
-    setShowAccountData(newAccounts);
+    if (accountData) {
+      let newAccounts = SearchByText(searchText, accountData);
+      setShowAccountData(newAccounts);
+    }
   }, [searchText]);
 
   const [ifLock, setLock] = useState(true);
@@ -280,6 +263,7 @@ function App() {
         <Header
           searchText={searchText}
           onSearchTextChanged={onSearchTextChanged}
+          onSetKeyClick={onSetKeyClick}
           onSaveLocalClick={onSaveLocalClick}
           onSyncDropboxClick={onSyncDropboxClick}
           onCloseFileClick={onCloseFileClick}
@@ -308,8 +292,9 @@ function App() {
   } else {
     page = <>
       <OpenFilePage
+        onNewFileClick={onNewFileClick}
         onOpenFileClick={onOpenFileClick}
-        encryptData={encryptData}
+        ifFileOpen={ifFileOpen}
         fileName={fileName}
         inputPw={inputPw}
         onInputPwChange={onInputPwChange}
@@ -331,6 +316,13 @@ function App() {
         modalId={closeModalId}
         onNoClick={onCloseModalNoClick}
         onYesClick={onCloseModalYesClick}
+      />
+      <SetKeyModal
+        modalId={setKetModalId}
+        userKey={userKeyRaw}
+        onUserKeyChange={onUserKeyChange}
+        onCancelClick={onSetKeyModalCancelClick}
+        onConfirmClick={onSetKeyModalConfirmClick}
       />
       <WarningToast
         toastId={warningToastId}

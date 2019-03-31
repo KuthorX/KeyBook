@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 function OpenFilePage(props) {
-    const encryptData = props.encryptData;
+    const ifFileOpen = props.ifFileOpen;
     const inputPwRef = useRef();
     const inputPw = props.inputPw;
     const fileName = props.fileName;
@@ -25,12 +25,12 @@ function OpenFilePage(props) {
     }
 
     useEffect(() => {
-        if(encryptData) {
+        if(ifFileOpen) {
             inputPwRef.current.focus();
         }
     })
 
-    if (!encryptData) {
+    if (!ifFileOpen) {
         page = <>
             <div class="w-100 h-100 bg-light">
                 <div class="container w-100 h-100 align-items-center d-flex justify-content-center">
@@ -42,6 +42,10 @@ function OpenFilePage(props) {
                             <h2 class="text-center text-primary">
                                 Manager your keys
                             </h2>
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3 text-center"
+                                onClick={onNewFileClick}>
+                                New File
+                            </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3 text-center"
                                 onClick={onOpenFileClick}>
                                 Open File
@@ -88,6 +92,10 @@ function OpenFilePage(props) {
 
     function onOpenFileClick() {
         props.onOpenFileClick();
+    }
+
+    function onNewFileClick() {
+        props.onNewFileClick();
     }
 
     return (

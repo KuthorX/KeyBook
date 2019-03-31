@@ -22,6 +22,10 @@ function SearchArea(props) {
 }
 
 function Header(props) {
+  function onSetKeyClick() {
+    props.onSetKeyClick();
+  }
+
   function onSaveLocalClick() {
     props.onSaveLocalClick();
   }
@@ -46,6 +50,7 @@ function Header(props) {
             Menu
           </button>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+            <button type="button" class="btn-info dropdown-item" onClick={onSetKeyClick}>Set Key</button>
             <button type="button" class="btn-info dropdown-item" onClick={onSaveLocalClick}>Save Local</button>
             <button type="button" class="btn-info dropdown-item" onClick={onSyncDropboxClick}>Sync Dropbox</button>
             <button type="button" class="btn-danger dropdown-item" onClick={onCloseFileClick}>Close File</button>
