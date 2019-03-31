@@ -127,9 +127,9 @@ function Footer() {
         />
         <div class="mx-4 my-2 d-flex flex-row-reverse">
           <div>
-            <a class="text-info text-decoration-none" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <button type="button" class="btn btn-link text-info text-decoration-none" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
               Key Generate
-            </a>
+            </button>
           </div>
         </div>
       </div>

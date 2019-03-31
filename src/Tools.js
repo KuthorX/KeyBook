@@ -1,27 +1,31 @@
 import CryptoJS from 'crypto-js';
 
 // File Tools
-export function loadLocalFile(cb) {
+export function loadLocalFile(cb, errorCb) {
     var input = document.createElement('input');
     input.type = 'file';
 
-    input.onchange = e => { 
+    input.onchange = e => {
 
-       // getting a hold of the file reference
-       var file = e.target.files[0]; 
-    
-       // setting up the reader
-       var reader = new FileReader();
-       reader.readAsText(file,'UTF-8');
-    
-       // here we tell the reader what to do when it's done reading...
-       reader.onload = readerEvent => {
-          var content = readerEvent.target.result; // this is the content!
-          cb(content);
-       }
-    
+        // getting a hold of the file reference
+        var file = e.target.files[0];
+
+        // setting up the reader
+        var reader = new FileReader();
+        reader.readAsText(file, 'UTF-8');
+
+        // here we tell the reader what to do when it's done reading...
+        reader.onload = readerEvent => {
+            var content = readerEvent.target.result; // this is the content!
+            cb(content);
+        }
+        reader.onerror = readerEvent => {
+            var error = reader.error;
+            errorCb(error);
+        }
+
     }
-    
+
     input.click();
 }
 

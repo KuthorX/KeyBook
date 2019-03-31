@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
 
 function OpenFilePage(props) {
     const encryptData = props.encryptData;
+    const inputPwRef = useRef();
     const inputPw = props.inputPw;
     const fileName = props.fileName;
 
@@ -16,6 +18,17 @@ function OpenFilePage(props) {
     function onPwCancelClick() {
         props.onPwCancelClick();
     }
+    function onInputPwKeyDown(event) {
+        if (event.key === "Enter") {
+            onPwOkClick();
+        }
+    }
+
+    useEffect(() => {
+        if(encryptData) {
+            inputPwRef.current.focus();
+        }
+    })
 
     if (!encryptData) {
         page = <>
@@ -53,10 +66,10 @@ function OpenFilePage(props) {
                             <h3>
                                 {fileName}
                             </h3>
-                            <div class="form-group mt-3">
+                            <div class="form-group mt-3" id="inputPw">
                                 <input type="email" class="form-control" value={inputPw}
-                                    onChange={onInputPwChange}
-                                    placeholder="Type your password" />
+                                    onChange={onInputPwChange} ref={inputPwRef}
+                                    placeholder="Type your password" onKeyDown={onInputPwKeyDown}/>
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-1 text-center"
                                 onClick={onPwOkClick}>

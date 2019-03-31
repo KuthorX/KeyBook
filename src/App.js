@@ -23,9 +23,10 @@ require('bootstrap');
 // - 搜索功能：account、tags
 // - 小屏适配
 // - 随机生成密码工具
+// - 密码锁(本地存储)
 // TODO: 待添加功能/bug need to fixed
-// - 云存储功能
-// - 密码锁
+// - 云存储功能：Google Drive
+// - 云存储功能：DropBox
 // - 关联文件功能
 // - 中文语言支持
 // - 目录功能
@@ -44,21 +45,30 @@ function App() {
   function onOpenFileClickCb(content) {
     if (content) {
       setEncryptData(JSON.parse(content));
+
     }
   }
+  function onOpenFileErrorCb(error) {
+    console.log(error);
+  }
   function onOpenFileClick() {
-    loadLocalFile(onOpenFileClickCb);
+    loadLocalFile(onOpenFileClickCb, onOpenFileErrorCb);
   }
   function onPwOkClick() {
     let fileMd5 = encryptData["md5"];
     let inputMd5 = md5(inputPw);
     if (fileMd5 === inputMd5) {
-      console.log(JSON.parse(decrypt(encryptData["data"], inputPw)));
       setAccountData(JSON.parse(decrypt(encryptData["data"], inputPw)));
       setInputPw("");
       setLock(false);
     } else {
-      $("")
+      var animationEvent = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
+      $("#inputPw").addClass('shake-horizontal');
+      $("#inputPw > input").addClass('btn-outline-danger');
+      $("#inputPw").one(animationEvent, function (event) {
+        $("#inputPw").removeClass('shake-horizontal btn-danger');
+        $("#inputPw > input").removeClass('btn-outline-danger');
+      });
     }
   }
   function onPwCancelClick() {
@@ -257,7 +267,7 @@ function App() {
     setShowAccountData(newAccounts);
   }, [searchText]);
 
-  const [ifLock, setLock] = useState(false);
+  const [ifLock, setLock] = useState(true);
   const [fileName, setFileName] = useState("");
   const [inputPw, setInputPw] = useState("");
   function onInputPwChange(value) {

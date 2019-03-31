@@ -23,27 +23,89 @@ main {
     flex: auto;
 }
 
-.wrong-password {
-    animation-name: shake, glow-red;
-    animation-duration: 0.7s, 0.35s;
-    animation-iteration-count: 1, 2;
+.shake-horizontal > input {
+    -webkit-animation: shake-horizontal 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+    animation: shake-horizontal 0.8s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
 }
 
-@keyframes shake {
+@-webkit-keyframes shake-horizontal {
+    0%,
+    100% {
+        border-color: red;
+        box-shadow: 0 0 0 3rem rgba(220,53,69,.5);
+    }
 
     0%,
-    20%,
-    40%,
-    60%,
-    80% {
-        transform: translateX(8px);
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
     }
 
     10%,
     30%,
     50%,
-    70%,
+    70% {
+        -webkit-transform: translateX(-10px);
+        transform: translateX(-10px);
+    }
+
+    20%,
+    40%,
+    60% {
+        -webkit-transform: translateX(10px);
+        transform: translateX(10px);
+    }
+
+    80% {
+        -webkit-transform: translateX(8px);
+        transform: translateX(8px);
+    }
+
     90% {
+        -webkit-transform: translateX(-8px);
+        transform: translateX(-8px);
+    }
+}
+
+@keyframes shake-horizontal {
+    0%,
+    100% {
+        border-color: white;
+    }
+
+    1% {
+        border-color: red;
+    }
+
+
+    0%,
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70% {
+        -webkit-transform: translateX(-10px);
+        transform: translateX(-10px);
+    }
+
+    20%,
+    40%,
+    60% {
+        -webkit-transform: translateX(10px);
+        transform: translateX(10px);
+    }
+
+    80% {
+        -webkit-transform: translateX(8px);
+        transform: translateX(8px);
+    }
+
+    90% {
+        -webkit-transform: translateX(-8px);
         transform: translateX(-8px);
     }
 }
