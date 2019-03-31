@@ -1,3 +1,5 @@
+import {utc2timestamp} from './Tools';
+
 export function SearchByText(text, allAccounts) {
     let tags = {};
     const allData = allAccounts;
@@ -32,6 +34,12 @@ export function SearchByText(text, allAccounts) {
     newSet.forEach(item => {
         newArray.push(item);
     });
+
+    newArray.sort((a, b) => {
+        return utc2timestamp(a["dateModify"]) - utc2timestamp(b["dateModify"]);
+    })
+
+    console.log(newArray)
 
     return newArray;
 }

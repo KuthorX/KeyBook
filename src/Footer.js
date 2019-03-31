@@ -64,7 +64,7 @@ function GeneratePasswordView(props) {
   }
 
   return (
-    <div class="collapse show" id="collapseExample">
+    <div class="collapse" id="collapseExample">
       <div class="mx-4 mt-2">
         <div>
           <div class="container-fluid m-0 p-0">
@@ -128,7 +128,7 @@ function Footer() {
         <div class="mx-4 my-2 d-flex flex-row-reverse">
           <div>
             <a class="text-info text-decoration-none" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-              Password Generate
+              Key Generate
             </a>
           </div>
         </div>

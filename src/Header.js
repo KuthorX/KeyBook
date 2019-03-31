@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function SearchArea(props) {
   const searchText = props.searchText;
-  
+
   function onSearchTextChanged(e) {
     let value = e.target.value;
     props.onSearchTextChanged(value);
@@ -22,16 +22,36 @@ function SearchArea(props) {
 }
 
 function Header(props) {
+  function onSaveLocalClick() {
+    props.onSaveLocalClick();
+  }
+
+  function onSyncDropboxClick() {
+    props.onSyncDropboxClick();
+  }
+
+  function onCloseFileClick() {
+    props.onCloseFileClick();
+  }
+
   return (
     <div class="container-fluid py-2 border-bottom bg-white">
       <div class="row h-100">
-        <div class="col-sm order-1 order-sm-1 mt-1 mb-2 my-sm-auto text-center text-sm-left">
-          <span class="text-primary">Password Manager</span>
+        <div class="col-6 col-sm order-1 order-sm-1 my-auto text-center text-sm-left">
+          <span class="text-primary">KeyBook</span>
         </div>
-        <div class="col-sm order-2 order-sm-3 mb-2 my-sm-auto text-center text-sm-right">
-          <span class="text-primary">Menu</span>
+        <div class="col-6 col-sm order-2 order-sm-3 my-auto text-center text-sm-right">
+          <button class="btn btn-link dropdown-toggle text-decoration-none" type="button"
+            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Menu
+          </button>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+            <button type="button" class="btn-info dropdown-item" onClick={onSaveLocalClick}>Save Local</button>
+            <button type="button" class="btn-info dropdown-item" onClick={onSyncDropboxClick}>Sync Dropbox</button>
+            <button type="button" class="btn-danger dropdown-item" onClick={onCloseFileClick}>Close File</button>
+          </div>
         </div>
-        <div class="col-sm-6 order-3 order-sm-2 mt-sm-auto mt-1">
+        <div class="col-sm-6 order-3 order-sm-2 mt-2 mt-sm-auto mt-1">
           <SearchArea
             searchText={props.searchText}
             onSearchTextChanged={props.onSearchTextChanged}

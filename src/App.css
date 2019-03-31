@@ -22,3 +22,28 @@ main {
     -webkit-overflow-scrolling: touch;
     flex: auto;
 }
+
+.wrong-password {
+    animation-name: shake, glow-red;
+    animation-duration: 0.7s, 0.35s;
+    animation-iteration-count: 1, 2;
+}
+
+@keyframes shake {
+
+    0%,
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(8px);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-8px);
+    }
+}

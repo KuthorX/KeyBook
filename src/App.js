@@ -6,9 +6,12 @@ import Content from './Content';
 import { SearchByText } from './Search';
 import WarningToast from './toast/WarningToast';
 import DeleteModal from './DeleteModal';
+import CloseModal from './CloseModal';
 import Spinners from './Spinners';
 import $ from 'jquery';
 import OpenFilePage from './OpenFilePage';
+import { encrypt, decrypt, md5, getCurrentUTC, loadLocalFile } from "./Tools";
+import { saveAs } from 'file-saver';
 require('bootstrap');
 
 // DONE: 已添加功能
@@ -34,10 +37,38 @@ function App() {
   const [saveToastMsg, setSaveToastMsg] = useState({ "succeed": false, "msg": "" });
   const deleteModalId = "deleteModal";
   const [deleteModalAction, setDeleteModalAction] = useState({ "targetIndex": -1 });
+  const closeModalId = "closeModal";
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
+
+  const [encryptData, setEncryptData] = useState(null);
+  function onOpenFileClickCb(content) {
+    if (content) {
+      setEncryptData(JSON.parse(content));
+    }
+  }
+  function onOpenFileClick() {
+    loadLocalFile(onOpenFileClickCb);
+  }
+  function onPwOkClick() {
+    let fileMd5 = encryptData["md5"];
+    let inputMd5 = md5(inputPw);
+    if (fileMd5 === inputMd5) {
+      console.log(JSON.parse(decrypt(encryptData["data"], inputPw)));
+      setAccountData(JSON.parse(decrypt(encryptData["data"], inputPw)));
+      setInputPw("");
+      setLock(false);
+    } else {
+      $("")
+    }
+  }
+  function onPwCancelClick() {
+    setEncryptData(null);
+  }
 
   let recieveData = [
     {
+      "dateCreate": new Date().toISOString(),
+      "dateModify": new Date().toISOString(),
       "name": "MyAccount-1",
       "tags": "a b",
       "detailList": [{
@@ -50,6 +81,8 @@ function App() {
       }]
     },
     {
+      "dateCreate": new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      "dateModify": new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
       "name": "MyAccount-2",
       "tags": "a c",
       "detailList": [{
@@ -76,6 +109,8 @@ function App() {
       "id": Math.random(),
       "name": data.name,
       "tags": data.tags,
+      "dateCreate": data.dateCreate,
+      "dateModify": data.dateModify,
       "detailList": data.detailList.map(detail => {
         return {
           "id": Math.random(),
@@ -126,6 +161,8 @@ function App() {
       "id": newAccountId,
       "name": "New Account",
       "tags": "",
+      "dateCreate": new Date().toISOString(),
+      "dateModify": new Date().toISOString(),
       "detailList": []
     }, ...accountData];
     setSeacrhText("");
@@ -150,6 +187,39 @@ function App() {
     });
     setAccountData(newAllArray);
     setShowOption("account");
+  }
+
+  function showCloseModal(targetIndex) {
+    const newAction = {};
+    newAction.targetIndex = targetIndex;
+    $(`#${closeModalId}`).modal('show');
+  }
+  function onCloseModalNoClick() {
+  }
+  function onCloseModalYesClick() {
+    setLock(true);
+  }
+
+  function onSaveLocalClick() {
+    let userKey = "123";
+    let userMd5 = md5(userKey);
+    let encrptyData = encrypt(JSON.stringify(accountData), userKey);
+    let saveData = {
+      "md5": userMd5,
+      "data": encrptyData,
+      "date": getCurrentUTC(),
+    }
+    let text = JSON.stringify(saveData);
+    let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    saveAs(blob, "keybook-data.txt");
+  }
+
+  function onSyncDropboxClick() {
+
+  }
+
+  function onCloseFileClick() {
+    showCloseModal();
   }
 
   function onContentSaved(msg) {
@@ -187,12 +257,22 @@ function App() {
     setShowAccountData(newAccounts);
   }, [searchText]);
 
-  return (
-    <div className="App">
+  const [ifLock, setLock] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const [inputPw, setInputPw] = useState("");
+  function onInputPwChange(value) {
+    setInputPw(value);
+  }
+  let page;
+  if (!ifLock) {
+    page = <>
       <header>
         <Header
           searchText={searchText}
           onSearchTextChanged={onSearchTextChanged}
+          onSaveLocalClick={onSaveLocalClick}
+          onSyncDropboxClick={onSyncDropboxClick}
+          onCloseFileClick={onCloseFileClick}
         />
       </header>
       <main>
@@ -211,15 +291,36 @@ function App() {
         />
       </main>
       <footer>
-        <Footer />
+        <Footer
+        />
       </footer>
-      <OpenFilePage 
-        
+    </>;
+  } else {
+    page = <>
+      <OpenFilePage
+        onOpenFileClick={onOpenFileClick}
+        encryptData={encryptData}
+        fileName={fileName}
+        inputPw={inputPw}
+        onInputPwChange={onInputPwChange}
+        onPwOkClick={onPwOkClick}
+        onPwCancelClick={onPwCancelClick}
       />
+    </>
+  }
+
+  return (
+    <div className="App">
+      {page}
       <DeleteModal
         modalId={deleteModalId}
         onNoClick={onDeleteModalNoClick}
         onYesClick={onDeleteModalYesClick}
+      />
+      <CloseModal
+        modalId={closeModalId}
+        onNoClick={onCloseModalNoClick}
+        onYesClick={onCloseModalYesClick}
       />
       <WarningToast
         toastId={warningToastId}
