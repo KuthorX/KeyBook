@@ -15,7 +15,7 @@ import OpenFilePage from './OpenFilePage';
 import { encrypt, decrypt, md5, getCurrentUTC, loadLocalFile } from "./Tools";
 import { saveAs } from 'file-saver';
 import { openAuthPage, openFileFromDropBox } from './save/DropBoxTools';
-import 'bootstrap/dist/css/bootstrap.css';
+require('bootstrap');
 
 // DONE: 已添加功能
 // - 账户 list 展示
