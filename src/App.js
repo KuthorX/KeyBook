@@ -92,6 +92,7 @@ function App() {
   }
   function onPwCancelClick() {
     setEncryptData(null);
+    setFileOpen(false);
   }
 
   function onOpenDropBoxFileClick() {
