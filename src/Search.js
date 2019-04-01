@@ -39,7 +39,5 @@ export function SearchByText(text, allAccounts) {
         return utc2timestamp(a["dateModify"]) - utc2timestamp(b["dateModify"]);
     })
 
-    console.log(newArray)
-
     return newArray;
 }

@@ -55,6 +55,7 @@ function App() {
     if (content) {
       setFileData(JSON.parse(content));
       setEncryptData(JSON.parse(content)["data"]);
+      setFileOpen(true);
     }
   }
   function onOpenFileErrorCb(error) {
@@ -110,7 +111,6 @@ function App() {
     if (!hashArgs["access_token"]) {
       openAuthPage();
     } else {
-      console.log(hashArgs["access_token"]);
       openFileFromDropBox();
     }
   }
