@@ -25,7 +25,7 @@ function OpenFilePage(props) {
     }
 
     useEffect(() => {
-        if(ifFileOpen) {
+        if (ifFileOpen) {
             inputPwRef.current.focus();
         }
     })
@@ -52,7 +52,7 @@ function OpenFilePage(props) {
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3 text-center"
                                 onClick={onOpenDropBoxFileClick}>
-                                Open Dropbox File
+                                Open Dropbox File (Developing)
                             </button>
                         </div>
                     </div>
@@ -77,7 +77,7 @@ function OpenFilePage(props) {
                             <div class="form-group mt-3" id="inputPw">
                                 <input type="email" class="form-control" value={inputPw}
                                     onChange={onInputPwChange} ref={inputPwRef}
-                                    placeholder="Type your password" onKeyDown={onInputPwKeyDown}/>
+                                    placeholder="Type your password" onKeyDown={onInputPwKeyDown} />
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-1 text-center"
                                 onClick={onPwOkClick}>
