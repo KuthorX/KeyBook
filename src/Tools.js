@@ -60,7 +60,6 @@ export async function encryptMany(plainText, key, many) {
         let ciphertext = plainText;
         for (let i = 0; i < many; i++) {
             ciphertext = CryptoJS.AES.encrypt(ciphertext, key).toString();
-            console.log(ciphertext);
         }
         resolve(ciphertext);
     });
@@ -83,7 +82,6 @@ export async function encryptManyBackup(plainText, key, many) {
     worker.onmessage = function (event) {
         data = event.data;
         looping = false;
-        z
         worker.terminate();
     }
     worker.postMessage({

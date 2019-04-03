@@ -96,7 +96,7 @@ function App() {
 
   const [fileData, setFileData] = useState(null);
   const [ifFileOpen, setFileOpen] = useState(false);
-  const [encryptTime, setEncryptTime] = useState(10);
+  const [encryptTime, setEncryptTime] = useState(11);
 
   function onOpenFileOkCb(content) {
     if (content) {
@@ -283,7 +283,7 @@ function App() {
     showSpinners();
     let encryptData = await encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
     let userCiphertext = await encryptMany("12345", inputPw, encryptTime);
-    dismissSpinners();
+
     let saveData = {
       "plainText": "12345",
       "ciphertext": userCiphertext,
@@ -296,6 +296,7 @@ function App() {
       type: "text/plain;charset=utf-8"
     });
     saveAs(blob, "keybook-data.json");
+    dismissSpinners();
   }
 
   async function onSyncDropboxClick() {
