@@ -40,7 +40,7 @@ function OpenFilePage(props) {
                                 Key Book
                             </h1>
                             <h2 class="text-center text-primary">
-                                Manager your keys
+                                Manage your keys
                             </h2>
                             <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3 text-center"
                                 onClick={onNewFileClick}>
