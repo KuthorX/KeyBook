@@ -21,7 +21,6 @@ function EditDetailItem(props) {
 
     return (
         <div class="row py-1 border-top">
-            {/* TODO：调整输入框高度 */}
             <div class="input-group input-group-sm">
                 <div class="col-2 my-auto text-secondary p-0">
                     <input type="text" aria-label="Label" value={label} onChange={onLabelChange} class="form-control" />

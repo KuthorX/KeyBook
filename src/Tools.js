@@ -6,26 +6,18 @@ export function loadLocalFile(cb, errorCb) {
     input.type = 'file';
 
     input.onchange = e => {
-
-        // getting a hold of the file reference
         var file = e.target.files[0];
-
-        // setting up the reader
         var reader = new FileReader();
         reader.readAsText(file, 'UTF-8');
-
-        // here we tell the reader what to do when it's done reading...
         reader.onload = readerEvent => {
-            var content = readerEvent.target.result; // this is the content!
+            var content = readerEvent.target.result;
             cb(content);
         }
         reader.onerror = readerEvent => {
             var error = reader.error;
             errorCb(error);
         }
-
     }
-
     input.click();
 }
 
@@ -64,8 +56,24 @@ export function md5(plainText) {
     return CryptoJS.MD5(plainText).toString();
 }
 
+export function encryptMany(plainText, key, many) {
+    let ciphertext = plainText;
+    for (let i = 0; i < many; i++) {
+        ciphertext = CryptoJS.AES.encrypt(ciphertext, key).toString();
+    }
+    return ciphertext;
+}
+
 export function encrypt(plainText, key) {
     return CryptoJS.AES.encrypt(plainText, key).toString();
+}
+
+export function decryptMany(ciphertext, key, many) {
+    let plainText = ciphertext;
+    for (let i = 0; i < many; i++) {
+        plainText = CryptoJS.AES.decrypt(plainText, key).toString(CryptoJS.enc.Utf8);
+    }
+    return plainText;
 }
 
 export function decrypt(ciphertext, key) {

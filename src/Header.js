@@ -11,7 +11,6 @@ function SearchArea(props) {
   return (
     <div class="input-group">
       <div class="container-fluid input-group-prepend">
-        {/* <span class="input-group-text"></span> */}
         <input type="text" class="form-control text-center"
           placeholder="Search" aria-label="Search"
           value={searchText} onChange={onSearchTextChanged}
@@ -58,7 +57,7 @@ function Header(props) {
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
             <button type="button" class="btn-info dropdown-item" onClick={onSetKeyClick}>Set Key</button>
             <button type="button" class="btn-info dropdown-item" onClick={onSaveLocalClick}>Save Local</button>
-            <button type="button" class="btn-info dropdown-item" onClick={onSyncDropboxClick}>Sync Dropbox</button>
+            <button type="button" class="btn-info dropdown-item" onClick={onSyncDropboxClick}>Save to Dropbox</button>
             <button type="button" class="btn-danger dropdown-item" onClick={onCloseFileClick}>Close File</button>
           </div>
         </div>

@@ -5,38 +5,42 @@ import Footer from './Footer';
 import Content from './Content';
 import { SearchByText } from './Search';
 import WarningToast from './toast/WarningToast';
+import SuccessToast from './toast/SuccessToast';
+import FailToast from './toast/FailToast';
 import DeleteModal from './modal/DeleteModal';
 import CloseModal from './modal/CloseModal';
 import SetKeyModal from './modal/SetKeyModal';
 import KeyBookModal from './modal/KeyBookModal';
 import Spinners from './Spinners';
 import $ from 'jquery';
+import 'jquery.cookie';
 import OpenFilePage from './OpenFilePage';
-import { encrypt, decrypt, md5, getCurrentUTC, loadLocalFile } from "./Tools";
+import { encryptMany, decryptMany, getCurrentUTC, loadLocalFile } from "./Tools";
 import { saveAs } from 'file-saver';
-import { openAuthPage, openFileFromDropBox } from './save/DropBoxTools';
+import { openAuthPage, openFileFromDropBox, saveFileToDropBox } from './save/DropBoxTools';
 require('bootstrap');
 
 // DONE: 已添加功能
 // - 账户 list 展示
 // - 账户 detail 展示、编辑
 // - 账户 list 编辑：添加、删除
-// - Router
 // - tag 功能：展示、编辑
 // - 搜索功能：account、tags
 // - 小屏适配
 // - 随机生成密码工具
 // - 密码锁(本地存储)
-// TODO: 待添加功能/bug need to fixed
 // - 云存储功能：DropBox
+// TODO: 待添加功能/bug need to fixed
 // - 中文语言支持
 // - Electron
 
 function App() {
   const warningToastId = "warningToastId";
   const [warningToastMsg, setWarningToastMsg] = useState({ "msg": "" });
-  const saveToastId = "saveToastId";
-  const [saveToastMsg, setSaveToastMsg] = useState({ "succeed": false, "msg": "" });
+  const successToastId = "successToastId";
+  const [successToastMsg, setSuccessToastMsg] = useState({ "msg": "" });
+  const failToastId = "failToastId";
+  const [failToastMsg, setFailToastMsg] = useState({ "msg": "" });
   const deleteModalId = "deleteModal";
   const [deleteModalAction, setDeleteModalAction] = useState({ "targetIndex": -1 });
   const closeModalId = "closeModal";
@@ -44,17 +48,34 @@ function App() {
   const setKetModalId = "setKeyModal";
   const keyBookModalId = "keyBookModal";
 
+  useEffect(() => {
+    let hashStrings = window.location.hash.substring(1);
+    let hashArgs = {}
+    let items = hashStrings.length > 0 ? hashStrings.split("&") : [];
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i].split("=");
+      let name = decodeURIComponent(item[0]);
+      let value = decodeURIComponent(item[1]);
+      if (name.length > 0) {
+        hashArgs[name] = value;
+      }
+    }
+    if (hashArgs['access_token']) {
+      $.cookie('dropbox_token', hashArgs['access_token']);
+      window.location.href = "/";
+    }
+  }, []);
+
   function onKeyBookClick() {
     $(`#${keyBookModalId}`).modal('show');
   }
 
   const [fileData, setFileData] = useState(null);
   const [ifFileOpen, setFileOpen] = useState(false);
-  const [encryptData, setEncryptData] = useState(null);
+  const [encryptTime, setEncryptTime] = useState(30);
   function onOpenFileOkCb(content) {
     if (content) {
       setFileData(JSON.parse(content));
-      setEncryptData(JSON.parse(content)["data"]);
       setFileOpen(true);
     }
   }
@@ -64,22 +85,24 @@ function App() {
   function onNewFileClick() {
     setAccountData([]);
     setShowAccountData([]);
-    setUserKeyMd5(md5(""));
     setLock(false);
   }
   function onOpenFileClick() {
     loadLocalFile(onOpenFileOkCb, onOpenFileErrorCb);
   }
   function onPwOkClick() {
-    let fileMd5 = fileData["md5"];
-    let inputMd5 = md5(inputPw);
-    if (fileMd5 === inputMd5) {
-      setAccountData(JSON.parse(decrypt(fileData["data"], inputPw)));
-      setShowAccountData(JSON.parse(decrypt(fileData["data"], inputPw)));
-      setUserKeyMd5(decrypt(fileData["md5"], inputPw));
-      setInputPw("");
+    let fileCiphertext = fileData["cipherText"];
+    let inputEncryptTimes = fileData["encryptTime"];
+    let plainText = fileData["plainText"];
+    let inputEncrypt = encryptMany(plainText, inputPw, inputEncryptTimes);
+    if (fileCiphertext === inputEncrypt) {
+      showSpinners();
+      let data = JSON.parse(decryptMany(fileData["data"], inputPw, encryptTime));
+      setAccountData(data);
+      setShowAccountData(data);
       setLock(false);
       setFileOpen(false);
+      dismissSpinners();
     } else {
       var animationEvent = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
       $("#inputPw").addClass('shake-horizontal');
@@ -91,28 +114,33 @@ function App() {
     }
   }
   function onPwCancelClick() {
-    setEncryptData(null);
     setFileOpen(false);
   }
 
   function onOpenDropBoxFileClick() {
-    let hashStrings = window.location.hash.substring(1);
-    let hashArgs = {}
-    let items = hashStrings.length > 0 ? hashStrings.split("&") : [];
-    let i = 0
-    let len = items.length;
-    for (i = 0; i < len; i++) {
-      let item = items[i].split("=");
-      let name = decodeURIComponent(item[0]);
-      let value = decodeURIComponent(item[1]);
-      if (name.length > 0) {
-        hashArgs[name] = value;
-      }
-    }
-    if (!hashArgs["access_token"]) {
+    showSpinners();
+    let dropbox_token = $.cookie('dropbox_token');
+    if (!dropbox_token) {
       openAuthPage();
     } else {
-      openFileFromDropBox();
+      openFileFromDropBox((dropbox_token),
+        (msg) => {
+          console.log("openFileFromDropBox succeed");
+          setFileData(JSON.parse(msg));
+          setFileOpen(true);
+          dismissSpinners();
+        },
+        (msg) => {
+          console.log("openFileFromDropBox fail");
+          console.log(msg);
+          dismissSpinners();
+          var animationEvent = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
+          $("#openDropboxFileButton").addClass('shake-horizontal');
+          $("#openDropboxFileButton").one(animationEvent, function (event) {
+            $("#openDropboxFileButton").removeClass('shake-horizontal btn-danger');
+          });
+          onContentSaveFailed("Save to DropBox Fail");
+        });
     }
   }
 
@@ -120,15 +148,12 @@ function App() {
   useEffect(() => {
     if (accountData) {
       setShowAccountData(SearchByText(searchText, accountData));
-      setEncryptData(encrypt(JSON.stringify(accountData), userKeyRaw));
     }
   }, [accountData]);
 
   const [showAccountData, setShowAccountData] = useState(JSON.parse(JSON.stringify(accountData)));
   const [showAccountId, setShowAccountId] = useState(null);
   const [isEdit, setEdit] = useState(false);
-  // account: 显示列表
-  // detail: 显示详情
   const [showOption, setShowOption] = useState("account");
   function setAllData(data) {
     let newDict = {};
@@ -197,44 +222,68 @@ function App() {
   function onCloseModalYesClick() {
     setLock(true);
     setFileOpen(false);
+    setAccountData(null);
   }
 
   const [userKeyRaw, setUserKeyRaw] = useState("");
-  const [userKeyMd5, setUserKeyMd5] = useState("");
   function onSetKeyClick() {
     $(`#${setKetModalId}`).modal('show');
   }
   function onSetKeyModalCancelClick() {
-
   }
   function onSetKeyModalConfirmClick() {
-    setUserKeyMd5(md5(userKeyRaw));
-    let newEncryptData = {
-      "md5": md5(userKeyRaw),
-      "data": encrypt(JSON.stringify(accountData), userKeyRaw),
-      "date": getCurrentUTC(),
-    }
-    setEncryptData(encrypt(JSON.stringify(accountData), userKeyRaw));
-    setFileData(newEncryptData);
+    setInputPw(userKeyRaw);
+    setUserKeyRaw("");
   }
   function onUserKeyChange(value) {
     setUserKeyRaw(value);
   }
 
   function onSaveLocalClick() {
-    let userMd5 = userKeyMd5;
+    let encryptData = encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
+    let userCiphertext = encryptMany("12345", inputPw, encryptTime);
     let saveData = {
-      "md5": userMd5,
+      "plainText": "12345",
+      "ciphertext": userCiphertext,
+      "encryptTime": encryptTime,
       "data": encryptData,
       "date": getCurrentUTC(),
     }
     let text = JSON.stringify(saveData);
     let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    saveAs(blob, "keybook-data.txt");
+    saveAs(blob, "keybook-data.json");
   }
 
   function onSyncDropboxClick() {
-
+    showSpinners();
+    let dropbox_token = $.cookie('dropbox_token');
+    if (!dropbox_token) {
+      openAuthPage();
+      dismissSpinners();
+    } else {
+      let encryptData = encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
+      let userCiphertext = encryptMany("12345", inputPw, encryptTime);
+      let saveData = {
+        "plainText": "12345",
+        "ciphertext": userCiphertext,
+        "encryptTime": encryptTime,
+        "data": encryptData,
+        "date": getCurrentUTC(),
+      }
+      let text = JSON.stringify(saveData);
+      saveFileToDropBox(dropbox_token, text,
+        (msg) => {
+          console.log("saveFileToDropBox succeed");
+          onContentSaved("Save to DropBox Succeed");
+          dismissSpinners();
+        },
+        (msg) => {
+          console.log("saveFileToDropBox fail");
+          console.log(msg);
+          onContentSaveFailed("Save to DropBox Fail");
+          dismissSpinners();
+        });
+    }
   }
 
   function onCloseFileClick() {
@@ -242,15 +291,15 @@ function App() {
   }
 
   function onContentSaved(msg) {
-    let newSaveToastMsg = { "succeed": true, "msg": msg };
-    setSaveToastMsg(newSaveToastMsg);
-    $(`#${saveToastId}`).toast({ "delay": 2500 }).toast('show');
+    let newMsg = { "msg": msg };
+    setSuccessToastMsg(newMsg);
+    $(`#${successToastId}`).toast({ "delay": 2500 }).toast('show');
   }
 
   function onContentSaveFailed(msg) {
-    let newSaveToastMsg = { "succeed": false, "msg": msg };
-    setSaveToastMsg(newSaveToastMsg);
-    $(`#${saveToastId}`).toast({ "delay": 2500 }).toast('show');
+    let newMsg = { "msg": msg };
+    setFailToastMsg(newMsg);
+    $(`#${failToastId}`).toast({ "delay": 2500 }).toast('show');
   }
 
   function showSpinners() {
@@ -360,6 +409,14 @@ function App() {
       <WarningToast
         toastId={warningToastId}
         msg={warningToastMsg.msg}
+      />
+      <SuccessToast
+        toastId={successToastId}
+        msg={successToastMsg.msg}
+      />
+      <FailToast
+        toastId={failToastId}
+        msg={failToastMsg.msg}
       />
       <Spinners
         ifShow={ifSpinnersShow}
