@@ -56,28 +56,50 @@ export function md5(plainText) {
     return CryptoJS.MD5(plainText).toString();
 }
 
-export function encryptMany(plainText, key, many) {
-    let ciphertext = plainText;
-    for (let i = 0; i < many; i++) {
-        ciphertext = CryptoJS.AES.encrypt(ciphertext, key).toString();
+export async function encryptMany(plainText, key, many) {
+    let looping = true;
+    let data = "";
+    let worker = new Worker('./worker/aes.js');
+    worker.postMessage({
+        method: 'encryptMany', args: {
+            "plainText": plainText,
+            "key": key,
+            "many": many,
+        }
+    });
+    worker.onmessage = function (event) {
+        data = event.data;
+        looping = false;
+        worker.terminate();
     }
-    return ciphertext;
+    return new Promise(resolve => {
+        while(looping) {
+        }
+        resolve(data);
+    });
 }
 
-export function encrypt(plainText, key) {
-    return CryptoJS.AES.encrypt(plainText, key).toString();
-}
-
-export function decryptMany(ciphertext, key, many) {
-    let plainText = ciphertext;
-    for (let i = 0; i < many; i++) {
-        plainText = CryptoJS.AES.decrypt(plainText, key).toString(CryptoJS.enc.Utf8);
+export async function decryptMany(ciphertext, key, many) {
+    let looping = true;
+    let data = "";
+    let worker = new Worker('./worker/aes.js');
+    worker.postMessage({
+        method: 'decryptMany', args: {
+            "ciphertext": ciphertext,
+            "key": key,
+            "many": many,
+        }
+    });
+    worker.onmessage = function (event) {
+        data = event.data;
+        looping = false;
+        worker.terminate();
     }
-    return plainText;
-}
-
-export function decrypt(ciphertext, key) {
-    return CryptoJS.AES.decrypt(ciphertext, key).toString(CryptoJS.enc.Utf8);
+    return new Promise(resolve => {
+        while(looping) {
+        }
+        resolve(data);
+    });
 }
 
 // Copy Tools

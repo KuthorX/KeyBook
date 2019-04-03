@@ -72,7 +72,7 @@ function App() {
 
   const [fileData, setFileData] = useState(null);
   const [ifFileOpen, setFileOpen] = useState(false);
-  const [encryptTime, setEncryptTime] = useState(30);
+  const [encryptTime, setEncryptTime] = useState(10);
   function onOpenFileOkCb(content) {
     if (content) {
       setFileData(JSON.parse(content));
@@ -90,14 +90,14 @@ function App() {
   function onOpenFileClick() {
     loadLocalFile(onOpenFileOkCb, onOpenFileErrorCb);
   }
-  function onPwOkClick() {
+  async function onPwOkClick() {
     let fileCiphertext = fileData["cipherText"];
     let inputEncryptTimes = fileData["encryptTime"];
     let plainText = fileData["plainText"];
-    let inputEncrypt = encryptMany(plainText, inputPw, inputEncryptTimes);
+    let inputEncrypt = await encryptMany(plainText, inputPw, inputEncryptTimes);
     if (fileCiphertext === inputEncrypt) {
       showSpinners();
-      let data = JSON.parse(decryptMany(fileData["data"], inputPw, encryptTime));
+      let data = JSON.parse(await decryptMany(fileData["data"], inputPw, encryptTime));
       setAccountData(data);
       setShowAccountData(data);
       setLock(false);
@@ -239,9 +239,9 @@ function App() {
     setUserKeyRaw(value);
   }
 
-  function onSaveLocalClick() {
-    let encryptData = encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
-    let userCiphertext = encryptMany("12345", inputPw, encryptTime);
+  async function onSaveLocalClick() {
+    let encryptData = await encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
+    let userCiphertext = await encryptMany("12345", inputPw, encryptTime);
     let saveData = {
       "plainText": "12345",
       "ciphertext": userCiphertext,
@@ -254,15 +254,15 @@ function App() {
     saveAs(blob, "keybook-data.json");
   }
 
-  function onSyncDropboxClick() {
+  async function onSyncDropboxClick() {
     showSpinners();
     let dropbox_token = $.cookie('dropbox_token');
     if (!dropbox_token) {
       openAuthPage();
       dismissSpinners();
     } else {
-      let encryptData = encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
-      let userCiphertext = encryptMany("12345", inputPw, encryptTime);
+      let encryptData = await encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
+      let userCiphertext = await encryptMany("12345", inputPw, encryptTime);
       let saveData = {
         "plainText": "12345",
         "ciphertext": userCiphertext,
