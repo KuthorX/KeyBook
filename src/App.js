@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+  useState,
+  useEffect
+} from 'react';
 import './App.css';
 import Header from './Header';
 import Footer from './Footer';
 import Content from './Content';
-import { SearchByText } from './Search';
+import {
+  SearchByText
+} from './Search';
 import WarningToast from './toast/WarningToast';
 import SuccessToast from './toast/SuccessToast';
 import FailToast from './toast/FailToast';
@@ -15,9 +20,20 @@ import Spinners from './Spinners';
 import $ from 'jquery';
 import 'jquery.cookie';
 import OpenFilePage from './OpenFilePage';
-import { encryptMany, decryptMany, getCurrentUTC, loadLocalFile } from "./Tools";
-import { saveAs } from 'file-saver';
-import { openAuthPage, openFileFromDropBox, saveFileToDropBox } from './save/DropBoxTools';
+import {
+  encryptMany,
+  decryptMany,
+  getCurrentUTC,
+  loadLocalFile
+} from "./Tools";
+import {
+  saveAs
+} from 'file-saver';
+import {
+  openAuthPage,
+  openFileFromDropBox,
+  saveFileToDropBox
+} from './save/DropBoxTools';
 require('bootstrap');
 
 // DONE: 已添加功能
@@ -36,13 +52,21 @@ require('bootstrap');
 
 function App() {
   const warningToastId = "warningToastId";
-  const [warningToastMsg, setWarningToastMsg] = useState({ "msg": "" });
+  const [warningToastMsg, setWarningToastMsg] = useState({
+    "msg": ""
+  });
   const successToastId = "successToastId";
-  const [successToastMsg, setSuccessToastMsg] = useState({ "msg": "" });
+  const [successToastMsg, setSuccessToastMsg] = useState({
+    "msg": ""
+  });
   const failToastId = "failToastId";
-  const [failToastMsg, setFailToastMsg] = useState({ "msg": "" });
+  const [failToastMsg, setFailToastMsg] = useState({
+    "msg": ""
+  });
   const deleteModalId = "deleteModal";
-  const [deleteModalAction, setDeleteModalAction] = useState({ "targetIndex": -1 });
+  const [deleteModalAction, setDeleteModalAction] = useState({
+    "targetIndex": -1
+  });
   const closeModalId = "closeModal";
   const [ifSpinnersShow, setIfSpinnersShow] = useState(false);
   const setKetModalId = "setKeyModal";
@@ -73,36 +97,39 @@ function App() {
   const [fileData, setFileData] = useState(null);
   const [ifFileOpen, setFileOpen] = useState(false);
   const [encryptTime, setEncryptTime] = useState(10);
+
   function onOpenFileOkCb(content) {
     if (content) {
       setFileData(JSON.parse(content));
       setFileOpen(true);
     }
   }
+
   function onOpenFileErrorCb(error) {
     console.log(error);
   }
+
   function onNewFileClick() {
     setAccountData([]);
     setShowAccountData([]);
     setLock(false);
   }
+
   function onOpenFileClick() {
     loadLocalFile(onOpenFileOkCb, onOpenFileErrorCb);
   }
   async function onPwOkClick() {
+    showSpinners();
     let fileCiphertext = fileData["cipherText"];
     let inputEncryptTimes = fileData["encryptTime"];
     let plainText = fileData["plainText"];
     let inputEncrypt = await encryptMany(plainText, inputPw, inputEncryptTimes);
     if (fileCiphertext === inputEncrypt) {
-      showSpinners();
       let data = JSON.parse(await decryptMany(fileData["data"], inputPw, encryptTime));
       setAccountData(data);
       setShowAccountData(data);
       setLock(false);
       setFileOpen(false);
-      dismissSpinners();
     } else {
       var animationEvent = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
       $("#inputPw").addClass('shake-horizontal');
@@ -112,7 +139,9 @@ function App() {
         $("#inputPw > input").removeClass('btn-outline-danger');
       });
     }
+    dismissSpinners();
   }
+
   function onPwCancelClick() {
     setFileOpen(false);
   }
@@ -155,6 +184,7 @@ function App() {
   const [showAccountId, setShowAccountId] = useState(null);
   const [isEdit, setEdit] = useState(false);
   const [showOption, setShowOption] = useState("account");
+
   function setAllData(data) {
     let newDict = {};
     data.map(account => {
@@ -174,10 +204,15 @@ function App() {
     }
     setAccountData(newArray);
   }
+
   function showWaringToast(msg) {
-    let newToastMsg = { "msg": msg };
+    let newToastMsg = {
+      "msg": msg
+    };
     setWarningToastMsg(newToastMsg);
-    $(`#${warningToastId}`).toast({ "delay": 3000 }).toast('show');
+    $(`#${warningToastId}`).toast({
+      "delay": 3000
+    }).toast('show');
   }
 
   function addAccount() {
@@ -202,8 +237,9 @@ function App() {
     setDeleteModalAction(newAction);
     $(`#${deleteModalId}`).modal('show');
   }
-  function onDeleteModalNoClick() {
-  }
+
+  function onDeleteModalNoClick() { }
+
   function onDeleteModalYesClick() {
     let deleteIndex = deleteModalAction.targetIndex;
     let deleteItem = showAccountData[deleteIndex];
@@ -217,8 +253,9 @@ function App() {
   function showCloseModal() {
     $(`#${closeModalId}`).modal('show');
   }
-  function onCloseModalNoClick() {
-  }
+
+  function onCloseModalNoClick() { }
+
   function onCloseModalYesClick() {
     setLock(true);
     setFileOpen(false);
@@ -226,22 +263,27 @@ function App() {
   }
 
   const [userKeyRaw, setUserKeyRaw] = useState("");
+
   function onSetKeyClick() {
     $(`#${setKetModalId}`).modal('show');
   }
-  function onSetKeyModalCancelClick() {
-  }
+
+  function onSetKeyModalCancelClick() { }
+
   function onSetKeyModalConfirmClick() {
     setInputPw(userKeyRaw);
     setUserKeyRaw("");
   }
+
   function onUserKeyChange(value) {
     setUserKeyRaw(value);
   }
 
   async function onSaveLocalClick() {
+    showSpinners();
     let encryptData = await encryptMany(JSON.stringify(accountData), inputPw, encryptTime);
     let userCiphertext = await encryptMany("12345", inputPw, encryptTime);
+    dismissSpinners();
     let saveData = {
       "plainText": "12345",
       "ciphertext": userCiphertext,
@@ -250,7 +292,9 @@ function App() {
       "date": getCurrentUTC(),
     }
     let text = JSON.stringify(saveData);
-    let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    let blob = new Blob([text], {
+      type: "text/plain;charset=utf-8"
+    });
     saveAs(blob, "keybook-data.json");
   }
 
@@ -291,15 +335,23 @@ function App() {
   }
 
   function onContentSaved(msg) {
-    let newMsg = { "msg": msg };
+    let newMsg = {
+      "msg": msg
+    };
     setSuccessToastMsg(newMsg);
-    $(`#${successToastId}`).toast({ "delay": 2500 }).toast('show');
+    $(`#${successToastId}`).toast({
+      "delay": 2500
+    }).toast('show');
   }
 
   function onContentSaveFailed(msg) {
-    let newMsg = { "msg": msg };
+    let newMsg = {
+      "msg": msg
+    };
     setFailToastMsg(newMsg);
-    $(`#${failToastId}`).toast({ "delay": 2500 }).toast('show');
+    $(`#${failToastId}`).toast({
+      "delay": 2500
+    }).toast('show');
   }
 
   function showSpinners() {
@@ -311,6 +363,7 @@ function App() {
   }
 
   const [searchText, setSeacrhText] = useState("");
+
   function onSearchTextChanged(value) {
     if (isEdit) {
       showWaringToast("Your current account is editing, please save or cancel editing status! ");
@@ -330,6 +383,7 @@ function App() {
   const [ifLock, setLock] = useState(true);
   const [fileName, setFileName] = useState("");
   const [inputPw, setInputPw] = useState("");
+
   function onInputPwChange(value) {
     setInputPw(value);
   }

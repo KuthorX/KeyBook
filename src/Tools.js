@@ -54,21 +54,41 @@ export function generatePassword(length) {
     return text;
 }
 
-export function md5(plainText) {
-    return CryptoJS.MD5(plainText).toString();
-}
 
 export async function encryptMany(plainText, key, many) {
+    return new Promise(resolve => {
+        let ciphertext = plainText;
+        for (let i = 0; i < many; i++) {
+            ciphertext = CryptoJS.AES.encrypt(ciphertext, key).toString();
+            console.log(ciphertext);
+        }
+        resolve(ciphertext);
+    });
+}
+
+export async function decryptMany(ciphertext, key, many) {
+    return new Promise(resolve => {
+        let plainText = ciphertext;
+        for (let i = 0; i < many; i++) {
+            plainText = CryptoJS.AES.decrypt(plainText, key).toString(CryptoJS.enc.Utf8);
+        }
+        resolve(plainText);
+    });
+}
+
+export async function encryptManyBackup(plainText, key, many) {
     let looping = true;
     let data = "";
     let worker = new WebWorker(aesWorker);
     worker.onmessage = function (event) {
         data = event.data;
         looping = false;
+        z
         worker.terminate();
     }
     worker.postMessage({
-        "method": 'encryptMany', "args": {
+        "method": 'encryptMany',
+        "args": {
             "plainText": plainText,
             "key": key,
             "many": many,
@@ -80,12 +100,13 @@ export async function encryptMany(plainText, key, many) {
     });
 }
 
-export async function decryptMany(ciphertext, key, many) {
+export async function decryptManyBackUp(ciphertext, key, many) {
     let looping = true;
     let data = "";
     let worker = new Worker('./worker/aes.js');
     worker.postMessage({
-        method: 'decryptMany', args: {
+        method: 'decryptMany',
+        args: {
             "ciphertext": ciphertext,
             "key": key,
             "many": many,
@@ -97,8 +118,7 @@ export async function decryptMany(ciphertext, key, many) {
         worker.terminate();
     }
     return new Promise(resolve => {
-        while (looping) {
-        }
+        while (looping) {}
         resolve(data);
     });
 }
