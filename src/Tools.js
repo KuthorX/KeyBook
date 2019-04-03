@@ -1,4 +1,6 @@
 import CryptoJS from 'crypto-js';
+import aesWorker from './worker/aes';
+import WebWorker from './worker/WebWorker';
 
 // File Tools
 export function loadLocalFile(cb, errorCb) {
@@ -59,23 +61,22 @@ export function md5(plainText) {
 export async function encryptMany(plainText, key, many) {
     let looping = true;
     let data = "";
-    let worker = new Worker('./worker/aes.js');
-    worker.postMessage({
-        method: 'encryptMany', args: {
-            "plainText": plainText,
-            "key": key,
-            "many": many,
-        }
-    });
+    let worker = new WebWorker(aesWorker);
     worker.onmessage = function (event) {
         data = event.data;
         looping = false;
         worker.terminate();
     }
-    return new Promise(resolve => {
-        while(looping) {
+    worker.postMessage({
+        "method": 'encryptMany', "args": {
+            "plainText": plainText,
+            "key": key,
+            "many": many,
         }
+    });
+    return new Promise(resolve => {
         resolve(data);
+        console.log(data);
     });
 }
 
@@ -96,7 +97,7 @@ export async function decryptMany(ciphertext, key, many) {
         worker.terminate();
     }
     return new Promise(resolve => {
-        while(looping) {
+        while (looping) {
         }
         resolve(data);
     });

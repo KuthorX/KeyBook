@@ -4,6 +4,7 @@ function encryptMany(plainText, key, many) {
     let ciphertext = plainText;
     for (let i = 0; i < many; i++) {
         ciphertext = CryptoJS.AES.encrypt(ciphertext, key).toString();
+        console.log(ciphertext);
     }
     return ciphertext;
 }
@@ -16,11 +17,16 @@ function decryptMany(ciphertext, key, many) {
     return plainText;
 }
 
-onmessage = function (e) {
-    let method = e.method;
-    if (method === "encryptMany") {
-        postMessage(encryptMany(e.args["plainText"], e.args["key"], e.args["many"]))
-    } else if (method === "decryptMany") {
-        postMessage(decryptMany(e.args["ciphertext"], e.args["key"], e.args["many"]))
-    }
+export default () => {
+    self.addEventListener('message', e => { // eslint-disable-line no-restricted-globals
+        if (!e) return;
+        console.log(e);
+        let data = e.data;
+        let method = data.method;
+        if (method === "encryptMany") {
+            postMessage(encryptMany(data.args["plainText"], data.args["key"], data.args["many"]))
+        } else if (method === "decryptMany") {
+            postMessage(decryptMany(data.args["ciphertext"], data.args["key"], data.args["many"]))
+        }
+    })
 }
